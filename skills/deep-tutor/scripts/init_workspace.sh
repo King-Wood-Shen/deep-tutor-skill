@@ -8,9 +8,15 @@ title="${2:?title required}"
 entry_mode="${3:?entry_mode required}"
 intent="${4:?intent required}"
 
-# Validate slug as kebab-case (lowercase letters, digits, hyphens; starts with letter/digit)
-if ! [[ "$slug" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
-  echo "bad slug: must be kebab-case (lowercase letters, digits, hyphens): $slug" >&2
+# Validate slug as kebab-case (lowercase letters/digits/hyphens; alnum bookends)
+if ! [[ "$slug" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]]; then
+  echo "bad slug: must be kebab-case (lowercase letters, digits, internal hyphens): $slug" >&2
+  exit 2
+fi
+
+# Reject newlines in title (would corrupt YAML and markdown headings)
+if [[ "$title" == *$'\n'* || "$title" == *$'\r'* ]]; then
+  echo "bad title: must not contain newlines" >&2
   exit 2
 fi
 
