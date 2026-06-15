@@ -15,6 +15,12 @@ Given a paper or topic, the **first action** is to find the associated open-sour
 - Use `gh search repos` with paper title keywords.
 - For topics, search by canonical term (`"flash attention" gh search`).
 
+**Source breadth (topic-mode searches):** When the input is a topic string (no specific paper/repo given), do NOT settle on a single canonical implementation. Aim for:
+
+- **1-3 representative repos** ordered by likely relevance (stars, recency, official-vs-third-party). If three credible candidates exist (e.g., original authors' impl + a Triton port + a HuggingFace integration), include all three.
+- **Cross-implementation comparison required:** the alignment scan in Step 2 must compare at least 2 implementations against each other when ≥ 2 are selected. Findings of type "💡 反直觉" that only show up in one impl but not others are gold — flag them explicitly with `(impl-divergent)`.
+- **Stop conditions:** stop searching when (a) 3 credible repos selected, or (b) you've spent ≥ 5 search/fetch calls without finding new credible candidates. Do not exhaustively enumerate the field.
+
 If **no code is found** at all for the topic, write the topic into `findings.md` with `[no-code]` (paper-only research — no implementation exists publicly). This is distinct from `[no-line-ref]` (defined in [citation-rules.md](citation-rules.md)), which marks an individual unverifiable finding even when code DOES exist for the topic. Then add this line at the top of `research_report.md`:
 
 > ⚠️ Paper-only — confidence reduced. No open-source implementation located.
