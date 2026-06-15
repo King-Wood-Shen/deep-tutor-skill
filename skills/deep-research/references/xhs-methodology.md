@@ -15,7 +15,7 @@ Given a paper or topic, the **first action** is to find the associated open-sour
 - Use `gh search repos` with paper title keywords.
 - For topics, search by canonical term (`"flash attention" gh search`).
 
-If **no code is found**, write the topic into `findings.md` with `[no-code]` and add this line at the top of `research_report.md`:
+If **no code is found** at all for the topic, write the topic into `findings.md` with `[no-code]` (paper-only research — no implementation exists publicly). This is distinct from `[no-line-ref]` (defined in [citation-rules.md](citation-rules.md)), which marks an individual unverifiable finding even when code DOES exist for the topic. Then add this line at the top of `research_report.md`:
 
 > ⚠️ Paper-only — confidence reduced. No open-source implementation located.
 

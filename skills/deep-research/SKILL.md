@@ -58,8 +58,10 @@ Every claim carries a citation per [references/citation-rules.md](references/cit
 After finishing, reply to the caller (deep-tutor or user) with a structured summary, NOT the full report:
 
 ```
+Mode: intake | incremental
 Wrote: <list of files touched>
 Findings: <N>💡 / <N>🐛 / <N>🧪
+Code coverage: <X>% of citations link to sources/code/
 Open questions: <bullets>
 Confidence: high / medium / low (low if paper-only)
 ```
