@@ -37,7 +37,7 @@ bash <skill_dir>/scripts/init_workspace.sh "<slug>" "<title>" "<entry_mode>" "<i
 ## Step 2 — Route by mode
 
 - `current_mode == light` → follow [references/light-mode.md](references/light-mode.md) (this is the only mode shipped in MVP).
-- `current_mode == heavy` → **MVP not yet implemented**. Reply: "Heavy mode 还没在当前版本上线，请用 `intent=learn` + paper/topic 入口先试用，或等后续 phase 发布。" Then exit.
+- `current_mode == heavy` → follow [references/heavy-mode.md](references/heavy-mode.md).
 
 ## Step 3 — Run the per-turn loop
 
@@ -57,7 +57,7 @@ When probing the user, use one of the patterns in [references/socratic-prompts.m
 
 Honor these phrases at any turn:
 - "切到轻量模式" / "switch to light mode" → set `current_mode = light`.
-- "切到研究模式" / "switch to heavy/research mode" → set `current_mode = heavy` (MVP: reply with the not-implemented message and do not switch).
+- "切到研究模式" / "switch to heavy/research mode" → set `current_mode = heavy`. If `findings.md` does not exist yet, run Phase 0 intake on next turn (per [references/heavy-mode.md](references/heavy-mode.md)).
 - "新建主题 X" → force-create a new workspace.
 - "继续主题 Y" → load existing workspace.
 - "忘了我" / "重新开始" → archive `.deeptutor/<slug>/` to `.deeptutor/_archive/<slug>-<timestamp>/` and create fresh.
