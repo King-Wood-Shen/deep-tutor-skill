@@ -20,6 +20,14 @@ The caller passes (in natural language or structured):
 
 If the caller did not specify `mode`, treat as `intake` if `findings.md` does not exist yet, else `incremental`.
 
+**Caller explicitly requested `incremental` but `findings.md` does not exist:** This is a contract error — incremental builds on prior intake. Do NOT silently fall through to intake (that would surprise the caller with a long-running first call). Instead, return early with the structured summary:
+```
+Mode: error
+Error: incremental requested but findings.md not found at <workspace>. Run with mode: intake first, or omit mode for auto-routing.
+Wrote: (nothing)
+```
+The caller (deep-tutor or user) decides whether to retry as intake.
+
 ## Pipeline
 
 Follow [references/xhs-methodology.md](references/xhs-methodology.md) strictly. The four steps are:

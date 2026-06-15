@@ -65,7 +65,14 @@ Honor these phrases at any turn:
 - "继续主题 Y" → load existing workspace.
 - "忘了我" / "重新开始" → archive `.deeptutor/<slug>/` to `.deeptutor/_archive/<slug>-<timestamp>/` and create fresh.
 
-**Natural-language topic-switch detection** (turn 2+): even without the exact `"新建主题 X"` phrase, if the user's message (a) references a clearly different domain/topic from the current `manifest.yaml.title` AND (b) does NOT reference the existing topic at all, ask before continuing: "你这条像是要切到别的主题（X）。要 (a) 在新工作区开 X，(b) 暂停当前主题保留进度，还是 (c) 我理解错了，继续当前主题？" Wait for the user's answer; do NOT silently invoke deep-research on the new topic inside the current workspace.
+**Natural-language topic-switch detection** (turn 2+): even without the exact `"新建主题 X"` phrase, fire the disambiguation prompt below ONLY if ALL of the following hold:
+- (a) the message references a domain/topic different from the current `manifest.yaml.title` AND
+- (b) the message does NOT mention any unchecked node title from `learning_path.md` (cross-architecture comparison questions like "BERT 用同样的 √d_k 吗？" during a Transformer session must NOT fire — they refer to a related concept that anchors back to the current learning path) AND
+- (c) the message does NOT cite any item in `findings.md` (by stable id or paraphrase).
+
+If any of (b) or (c) is true, the message is a legitimate follow-up; stay in the current workspace.
+
+If all three hold, ask: "你这条像是要切到别的主题（X）。要 (a) 在新工作区开 X，(b) 暂停当前主题保留进度，还是 (c) 我理解错了，继续当前主题？" Wait for the user's answer; do NOT silently invoke deep-research on the new topic inside the current workspace.
 
 ## Do NOT
 

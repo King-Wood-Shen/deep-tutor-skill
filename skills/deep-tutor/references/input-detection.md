@@ -13,7 +13,7 @@ Scan the user's message for these patterns, in order:
 | Local directory path that exists and contains `.py`, `.js`, `.ts`, `.rs`, `.go`, `.cpp`, etc. | `local_code` |
 | None of the above | `topic` |
 
-If the message contains both a paper and a repo URL: prefer `repo` (per spec §5.2 rule 1, code > paper).
+If the message contains both a paper and a repo URL: prefer `repo` as the primary `entry_mode` (per spec §5.2 rule 1, code > paper). The non-preferred URL is NOT discarded — both URLs go into `manifest.yaml.sources[]` so `deep-research` intake can use them. Same rule for any other multi-URL message: the highest-priority URL drives `entry_mode`, but ALL URLs are persisted as `sources[]` entries.
 
 ## Step 2 — scan intent words
 
@@ -70,7 +70,7 @@ If `<cwd>/.deeptutor/<slug>/manifest.yaml` already exists, this is a candidate *
 
 1. **Manifest sanity** — file parses as YAML; required fields present (`topic`, `entry_mode`, `current_mode`, `intent`); enums valid (`entry_mode ∈ {paper, repo, local_code, topic}`, `current_mode ∈ {light, heavy}`, `intent ∈ {learn, research}`). If invalid, treat as corrupted: print a one-line warning to the user, archive the workspace to `.deeptutor/_archive/<slug>-corrupt-<ts>/`, and create fresh.
 
-2. **Slug collision check** — compare the just-derived `entry_mode` from the new message to the manifest's `entry_mode`. If they differ (e.g., new message implies `repo` but manifest says `topic`), **do NOT silently resume**. Instead, ask the user:
+2. **Slug collision check** — compare the just-derived `entry_mode` from the new message to the manifest's `entry_mode`. If they differ AND the user's new message does NOT contain a clear resume signal (one of: `继续`, `resume`, `继续主题`, `接着`, `上次`, the existing slug verbatim, or any unchecked node title from `learning_path.md`), **do NOT silently resume**. Instead, ask the user:
    > "我找到 `.deeptutor/<slug>/` 已存在，但它是 `<old_entry_mode>` 模式的会话，而你这条消息看起来是 `<new_entry_mode>`。要 (a) 继续旧会话，(b) 新建 `<slug>-2/` 子主题，还是 (c) 归档旧的、重新开始？"
    Wait for user choice before proceeding. Do NOT pick a default.
 

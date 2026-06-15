@@ -36,9 +36,9 @@ a. **Discuss a finding** — pick an unchecked `[ ]` item from `findings.md` rel
 
 b. **Advance the path** — if no relevant findings, explain the next `learning_path` node, using code excerpts from `sources/code/` rather than paper prose.
 
-c. **Quiz from findings** — questions derived from 💡/🐛 items make better quizzes than textbook questions. Mark `quizzes.md` entries with `source: findings.md#item-N`.
+c. **Quiz from findings** — questions derived from 💡/🐛 items make better quizzes than textbook questions. Mark `quizzes.md` entries with `source: findings.md#<stable-id>` (e.g., `findings.md#I-a3f2c1`). NEVER use positional indices like `#item-3` — incremental writes can reorder findings and invalidate positional refs. See [workspace-spec.md](workspace-spec.md) for the stable-id format.
 
-d. **User wants to actually run an experiment** — switch into execute-tier flow (see [execute-tier.md](../../../skills/deep-research/references/execute-tier.md), Phase 6).
+d. **User wants to actually run an experiment** — switch into execute-tier flow (see [execute-tier.md](../../../skills/deep-research/references/execute-tier.md)).
 
 e. **Information gap** — call `deep-research` with `mode: incremental` and a narrow `question`.
 
