@@ -1,0 +1,60 @@
+# Code-First Research Methodology
+
+The single most important rule of this skill: **code > paper text**. Papers are entry points; code is evidence. Findings drawn only from paper prose are weak.
+
+## Mandatory pipeline
+
+When invoked, execute these steps in order:
+
+### Step 1 — locate the code
+
+Given a paper or topic, the **first action** is to find the associated open-source implementation:
+
+- Check the paper for a GitHub link (often in abstract footer or §experiments).
+- Try [PapersWithCode](https://paperswithcode.com).
+- Use `gh search repos` with paper title keywords.
+- For topics, search by canonical term (`"flash attention" gh search`).
+
+If **no code is found**, write the topic into `findings.md` with `[no-code]` and add this line at the top of `research_report.md`:
+
+> ⚠️ Paper-only — confidence reduced. No open-source implementation located.
+
+### Step 2 — implementation vs paper alignment scan
+
+For each repo found, do a comparison pass:
+
+| What to find | Where to flag |
+|---|---|
+| Paper formula has a constant the code computes (e.g., scale factor, eps) | 💡 反直觉点 |
+| Code has a numerical stabilizer the paper omits (e.g., `+ 1e-9`, `clamp(min=…)`) | 💡 反直觉点 |
+| Code has hard-coded magic constants not justified in the paper | 💡 反直觉点 |
+| Off-by-one in loop bounds | 🐛 潜在 Bug |
+| Missing normalization where the paper claims it exists | 🐛 潜在 Bug |
+| Initialization is paper-specific but code uses framework default | 🐛 潜在 Bug |
+| Code comment contradicts the code | 🐛 潜在 Bug |
+
+### Step 3 — propose ablations
+
+For each 💡 finding, propose a corresponding 🧪 待跑实验:
+
+```
+Hypothesis: <one sentence>
+Manipulation: <change X to Y in <file:line>>
+Predicted outcome: <metric Z change by ~%>
+How to test: <command or test name>
+```
+
+### Step 4 — write artifacts
+
+- `sources/papers/<short>.md` — abstract + key passages with §refs.
+- `sources/code/<short>.md` — relevant code blocks with `<file>:<lines>` refs.
+- `findings.md` — three sections (`💡 / 🐛 / 🧪`), each item with a citation pointing at sources/*.
+- `research_report.md` — narrative report. Background / Method / Key findings / Citations. Citations point at sources/*.
+
+## What to NEVER do
+
+- ❌ Write `research_report.md` from paper prose alone.
+- ❌ Cite a paper claim without checking whether the code matches.
+- ❌ Add a 💡 finding without naming the file and lines.
+- ❌ Add a 🧪 experiment without a concrete manipulation and predicted outcome.
+- ❌ Run code (`pip install`, `python …`) unless `execute_tier: true` is set by the caller.
