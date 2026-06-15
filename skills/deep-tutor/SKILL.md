@@ -37,7 +37,7 @@ bash <skill_dir>/scripts/init_workspace.sh "<slug>" "<title>" "<entry_mode>" "<i
 ## Step 2 — Route by mode
 
 - `current_mode == light` → follow [references/light-mode.md](references/light-mode.md) (this is the only mode shipped in MVP).
-- `current_mode == heavy` → follow [references/heavy-mode.md](references/heavy-mode.md).
+- `current_mode == heavy` → follow [references/heavy-mode.md](references/heavy-mode.md). **Phase 0 intake runs only when `findings.md` does NOT yet exist in the workspace.** A resumed heavy session (findings.md present) skips Phase 0 and goes straight to the Phase 1 loop.
 
 ## Step 3 — Run the per-turn loop
 
@@ -57,7 +57,7 @@ When probing the user, use one of the patterns in [references/socratic-prompts.m
 
 Honor these phrases at any turn:
 - "切到轻量模式" / "switch to light mode" → set `current_mode = light`.
-- "切到研究模式" / "switch to heavy/research mode" → set `current_mode = heavy`. If `findings.md` does not exist yet, run Phase 0 intake on next turn (per [references/heavy-mode.md](references/heavy-mode.md)).
+- "切到研究模式" / "switch to heavy/research mode" → set `current_mode = heavy` in `manifest.yaml`. If `findings.md` does not exist yet, **acknowledge briefly on the current turn** with a reply like "已切到研究模式。下一轮我会跑一次 intake 扫源（抓 paper/repo、找反直觉点和待跑实验），先告诉我是否要包含 execute_tier（默认 false）。" Do NOT run intake on this turn — wait for the user's next message so they can confirm execute_tier preference. If `findings.md` already exists, just continue Phase 1 next turn under heavy mode.
 - "新建主题 X" → force-create a new workspace.
 - "继续主题 Y" → load existing workspace.
 - "忘了我" / "重新开始" → archive `.deeptutor/<slug>/` to `.deeptutor/_archive/<slug>-<timestamp>/` and create fresh.
