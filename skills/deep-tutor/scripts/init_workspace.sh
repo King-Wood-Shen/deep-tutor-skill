@@ -46,6 +46,7 @@ updated_at: "$now"
 entry_mode: "$entry_mode"
 current_mode: "$mode"
 intent: "$intent"
+execute_tier: false
 sources: []
 related: []
 EOF
