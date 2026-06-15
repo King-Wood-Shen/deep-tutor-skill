@@ -23,7 +23,7 @@ b. **Probe a gap** — if the last `learning_log` entry has a `Gaps:` line, foll
 
 c. **Explain the next node** — if the user has answered prior probes well, advance to the next `[ ]` node in `learning_path.md`. Keep explanations short (≤ 200 words); end with a check question.
 
-d. **Quiz** — every 3-5 turns, instead of advancing, post 1-2 questions from `quizzes.md` (using spaced repetition: items the user got wrong last time, or items not asked in > 5 turns).
+d. **Quiz** — every 3-5 turns, instead of advancing, post 1-2 questions from `quizzes.md` (using spaced repetition: items the user got wrong last time, or items not asked in > 5 turns). **If `quizzes.md` does not yet exist**, treat history as empty: generate 1-2 questions from the current `learning_path.md` node and create the file with those entries on the first write.
 
 e. **Local research** — if user asks a specific factual question you cannot answer from existing sources, invoke `deep-research` skill via Skill tool with `mode: incremental` and a narrow `question`. Do NOT trigger a full intake.
 
