@@ -8,6 +8,12 @@ title="${2:?title required}"
 entry_mode="${3:?entry_mode required}"
 intent="${4:?intent required}"
 
+# Validate slug as kebab-case (lowercase letters, digits, hyphens; starts with letter/digit)
+if ! [[ "$slug" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+  echo "bad slug: must be kebab-case (lowercase letters, digits, hyphens): $slug" >&2
+  exit 2
+fi
+
 case "$entry_mode" in paper|repo|local_code|topic) ;; *) echo "bad entry_mode: $entry_mode" >&2; exit 2 ;; esac
 case "$intent" in learn|research) ;; *) echo "bad intent: $intent" >&2; exit 2 ;; esac
 
@@ -23,9 +29,12 @@ now="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 mode="light"
 [[ "$intent" == "research" || "$entry_mode" == "repo" || "$entry_mode" == "local_code" ]] && mode="heavy"
 
+# Escape single quotes in free-form strings for YAML single-quoted style
+title_yaml="${title//\'/\'\'}"
+
 cat > "$dir/manifest.yaml" <<EOF
 topic: "$slug"
-title: "$title"
+title: '$title_yaml'
 created_at: "$now"
 updated_at: "$now"
 entry_mode: "$entry_mode"
