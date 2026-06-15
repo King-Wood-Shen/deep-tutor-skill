@@ -53,7 +53,7 @@ Every claim carries a citation per [references/citation-rules.md](references/cit
 - If `execute_tier: false` (default): **NEVER** run `pip install`, `python …`, `git clone` of >50MB repos, or any code from the target repo.
   - For `repo` sources (GitHub URL): read code via `gh api`, `gh repo view`, or `WebFetch`. `git clone` is allowed only for small repos (< 50MB) when needed for cross-file search.
   - For `local_code` sources (a path on the user's machine): use **`Read` and `Grep` directly on the local files**. Do NOT attempt to git-clone a local path, and do NOT cite GitHub URLs for code that lives only locally — citations must reference the local file paths verbatim.
-- If `execute_tier: true`: follow [references/execute-tier.md](references/execute-tier.md). **MVP: not implemented — refuse with message "execute_tier 还未实装"**.
+- If `execute_tier: true`: follow [references/execute-tier.md](references/execute-tier.md) strictly. Every step is gated by an explicit user-approval signal (size check → setup notes → wait → install → smoke test). Never retry a failed step.
 
 ## Output to caller
 
