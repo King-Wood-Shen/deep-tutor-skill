@@ -24,6 +24,7 @@ updated_at: "2026-06-15T14:23:00Z"
 entry_mode: "paper"                   # paper | repo | local_code | topic
 current_mode: "light"                 # light | heavy
 intent: "learn"                       # learn | research
+execute_tier: false                   # bool; deep-research may run install/smoke only when true
 sources:
   - type: "paper"
     url: "https://arxiv.org/abs/1706.03762"
