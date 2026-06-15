@@ -53,6 +53,10 @@ Before appending any 💡 / 🐛 entry to `findings.md`, run this checklist:
 
 Findings that fail check 1 or 2 must not be written.
 
+**Demotion accounting:** When any findings are demoted to `## ⚠️ Unverified`:
+- The caller-facing summary (defined in `deep-research/SKILL.md`) must count only the **verified** findings in the `Findings: <N>💡 / <N>🐛 / <N>🧪` line. Report unverified counts separately as `Unverified: <N>` to keep the headline trustworthy.
+- `research_report.md` must add a line in its "Key findings" section noting `(Note: <N> findings were demoted to Unverified due to missing code line refs)`.
+
 ## Code-coverage floor for `research_report.md`
 
 `research_report.md` must be code-grounded, not paper-grounded:

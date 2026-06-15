@@ -55,7 +55,7 @@ How to test: <command or test name>
 - `sources/papers/<short>.md` — abstract + key passages with §refs.
 - `sources/code/<short>.md` — relevant code blocks with `<file>:<lines>` refs.
 - `findings.md` — three sections (`💡 / 🐛 / 🧪`), each item with a citation pointing at sources/*.
-- `research_report.md` — narrative report. Background / Method / Key findings / Citations. Citations point at sources/*.
+- `research_report.md` — narrative report. Background / Method / Key findings / Citations. Citations point at sources/*. **If ≥ 2 implementations were selected in Step 1 (topic-mode source breadth), the report MUST contain a `## Cross-implementation comparison` subsection summarizing per-impl divergences and listing any `(impl-divergent)` findings.**
 
 ## What to NEVER do
 
