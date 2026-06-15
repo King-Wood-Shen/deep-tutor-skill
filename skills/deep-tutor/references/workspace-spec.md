@@ -36,20 +36,48 @@ related: []                           # paths to related topic workspaces
 
 ## `findings.md` structure
 
+Every finding gets a **stable identifier** that survives reordering and incremental additions. Format: `<section-letter>-<6-char hash>` where section-letter is `I` (💡 insight), `B` (🐛 bug), or `E` (🧪 experiment), and the hash is the first 6 chars of `sha1(title + first source ref)`.
+
 ```markdown
 # Findings
 
 ## 💡 反直觉点
-- [ ] [Finding title] — [source ref] — [1-2 sentence description]
+- [ ] **I-a3f2c1** [Finding title] — [source ref] — [1-2 sentence description]
+- [ ] **I-9e4d77** [Finding title] — [source ref] — [description]
 
 ## 🐛 潜在 Bug / 实现问题
-- [ ] [Finding title] — [source ref] — [description]
+- [ ] **B-b21f0e** [Finding title] — [source ref] — [description]
 
 ## 🧪 待跑实验
-- [ ] [Experiment title] — [hypothesis] — [predicted outcome]
+- [ ] **E-c8a3d9** [Experiment title] — [hypothesis] — [predicted outcome]
 ```
 
 Checkbox `[x]` = discussed with user; `[ ]` = open.
+
+**Cross-references (in `quizzes.md`, `learning_log.md`, etc.) MUST use the stable ID**, never a positional index like `#item-3`. Example:
+```
+source: findings.md#I-a3f2c1
+```
+On incremental writes, `deep-research` MUST NOT reuse an existing ID for a different finding. If a new finding would hash-collide with an existing one (extremely rare), append `-2`, `-3`, etc.
+
+## `quizzes.md` structure
+
+```markdown
+# Quizzes
+
+## Q-<6-char hash>
+- **Stem:** [question text]
+- **Reference answer:** [expected answer]
+- **Source:** findings.md#I-a3f2c1   (or learning_path.md node title; or "free-form")
+- **History:**
+  - 2026-06-15T14:30Z — user answered: "..." → correct ✓
+  - 2026-06-16T09:12Z — user answered: "..." → incorrect ✗
+
+## Q-<another hash>
+...
+```
+
+Quiz IDs use `Q-<6-char hash>` of stem text. Selection for spaced repetition (light-mode action `d`): prefer items whose last history entry is `incorrect ✗` OR whose `last asked` is > 5 turns ago.
 
 ## `learning_path.md` structure
 

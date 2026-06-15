@@ -25,6 +25,9 @@ Scan for these keywords (Chinese + English):
 | `搞懂`, `学`, `理解`, `教我`, `learn`, `understand`, `tutor me` | `learn` |
 | (nothing matched) | see fallback below |
 
+**Conflict resolution (both research AND learn keywords fire in the same message):**
+- `intent = research` wins. Rationale: a user who says "想学 X 的 novel idea" cares about novelty; light-mode pure teaching would frustrate them. Research mode still teaches via Phase 1 — they don't lose teaching, they gain code grounding.
+
 Fallback (no intent keywords):
 - `entry_mode in {repo, local_code}` → `intent = research`
 - otherwise → `intent = learn`
@@ -63,7 +66,15 @@ Slugs MUST be deterministic so that paraphrased restarts of the same topic resum
    - "想研究 self attention 的 novel idea" → `self-attention-novel-idea`
    - "https://github.com/karpathy/nanoGPT" → `nanogpt`
 
-If `<cwd>/.deeptutor/<slug>/manifest.yaml` already exists, this is a **resumed session** — load existing manifest instead of creating.
+If `<cwd>/.deeptutor/<slug>/manifest.yaml` already exists, this is a candidate **resumed session**. Before resuming, validate:
+
+1. **Manifest sanity** — file parses as YAML; required fields present (`topic`, `entry_mode`, `current_mode`, `intent`); enums valid (`entry_mode ∈ {paper, repo, local_code, topic}`, `current_mode ∈ {light, heavy}`, `intent ∈ {learn, research}`). If invalid, treat as corrupted: print a one-line warning to the user, archive the workspace to `.deeptutor/_archive/<slug>-corrupt-<ts>/`, and create fresh.
+
+2. **Slug collision check** — compare the just-derived `entry_mode` from the new message to the manifest's `entry_mode`. If they differ (e.g., new message implies `repo` but manifest says `topic`), **do NOT silently resume**. Instead, ask the user:
+   > "我找到 `.deeptutor/<slug>/` 已存在，但它是 `<old_entry_mode>` 模式的会话，而你这条消息看起来是 `<new_entry_mode>`。要 (a) 继续旧会话，(b) 新建 `<slug>-2/` 子主题，还是 (c) 归档旧的、重新开始？"
+   Wait for user choice before proceeding. Do NOT pick a default.
+
+Only after both checks pass: load the manifest and skip workspace creation.
 
 ## User overrides
 
