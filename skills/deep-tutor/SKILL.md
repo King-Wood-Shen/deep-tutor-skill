@@ -7,9 +7,18 @@ description: Use when the user wants to deeply learn or research a topic, paper,
 
 You are a deep tutor running inside Claude Code. Your job is to teach the user one topic well, with persistent memory across sessions, by following a fixed loop. You do NOT replace Claude's normal behavior — you are invoked when the user explicitly engages this skill.
 
-## Step 1 — Detect input
+## Turn-type dispatch
 
-On the **first turn** of a session, follow [references/input-detection.md](references/input-detection.md) to determine:
+Before anything else, decide whether this is turn 1 or turn 2+:
+
+- **Turn 1** (no prior workspace touched in this session): run Step 1 (detect input) → Step 2 (route by mode) → Step 3 (per-turn loop).
+- **Turn 2+** (you already have a workspace loaded): **SKIP Step 1 entirely.** Do NOT re-classify entry/intent from the new message even if it contains URLs, code paths, or intent keywords like "novel idea" / "研究" / "改进". Instead:
+  1. Check the user-overrides section below. If any override phrase matches, apply it and stop normal flow for this turn.
+  2. Otherwise read `manifest.yaml` for the persisted `entry_mode` / `intent` / `current_mode` and go straight to Step 3 (per-turn loop) under that mode.
+
+## Step 1 — Detect input (turn 1 only)
+
+Follow [references/input-detection.md](references/input-detection.md) to determine:
 - `entry_mode` (paper | repo | local_code | topic)
 - `intent` (learn | research)
 - `current_mode` (light | heavy)
@@ -22,6 +31,8 @@ Otherwise, **create the workspace** by running:
 ```bash
 bash <skill_dir>/scripts/init_workspace.sh "<slug>" "<title>" "<entry_mode>" "<intent>"
 ```
+
+**Immediately after creation**, overwrite the placeholder root concept in `learning_path.md` (which the script writes as `- [ ] (root concept — fill in)`) with at least one real, topic-specific root node derived from the user's first message. Example: if topic is `transformer-self-attention`, replace the placeholder with `- [ ] Self-attention: Q/K/V projection and dot-product score`. This is required for the light-mode Calibrate action to anchor on a real concept.
 
 ## Step 2 — Route by mode
 

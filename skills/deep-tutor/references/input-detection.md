@@ -39,13 +39,29 @@ elif intent == learn:
     else: current_mode = heavy   # repo / local_code cannot go light
 ```
 
-## Step 4 — derive slug
+## Step 4 — derive slug (deterministic)
 
-Generate a kebab-case slug, ≤ 6 words, derived from:
-- For `paper`: paper title (truncated).
-- For `repo`: repo name.
-- For `local_code`: leaf directory name.
-- For `topic`: 2-4 noun-phrase words from the message.
+Slugs MUST be deterministic so that paraphrased restarts of the same topic resume the same workspace. Use this exact algorithm:
+
+1. **Extract canonical phrase** based on `entry_mode`:
+   - `paper`: take paper title (from arXiv abstract page if URL given; from PDF first page otherwise).
+   - `repo`: take `<repo>` from `github.com/<owner>/<repo>` (lowercased).
+   - `local_code`: take the leaf directory name (lowercased).
+   - `topic`: extract **content nouns** from the message — drop these stopwords if present: `帮我`, `请`, `继续`, `学`, `搞懂`, `教我`, `理解`, `想`, `一下`, `了解`, `研究`, `复现`, `分析`, `看看`, `the`, `a`, `an`, `of`, `for`, `learn`, `understand`, `explore`, `study`, `please`, `help`, `me`, `tutor`, `about`, `into`, `is`, `how`, `what`, `why`, `works`, `working`. Also drop punctuation and Chinese particles (`的`, `了`, `是`, `怎么`, `如何`).
+
+2. **Normalize**:
+   - Lowercase.
+   - Replace whitespace and underscores with hyphens.
+   - Strip any character not in `[a-z0-9-]`.
+   - Collapse repeated hyphens; trim leading/trailing hyphens.
+
+3. **Truncate** to the first 4 content words (joined with `-`). Hard cap: 6 words. Result must match `^[a-z0-9]([a-z0-9-]*[a-z0-9])?$` (the same regex `init_workspace.sh` enforces).
+
+4. **Worked examples** (these MUST produce identical output):
+   - "帮我学一下 transformer 的 self-attention 是怎么工作的" → `transformer-self-attention`
+   - "继续学 transformer self-attention" → `transformer-self-attention`
+   - "想研究 self attention 的 novel idea" → `self-attention-novel-idea`
+   - "https://github.com/karpathy/nanoGPT" → `nanogpt`
 
 If `<cwd>/.deeptutor/<slug>/manifest.yaml` already exists, this is a **resumed session** — load existing manifest instead of creating.
 
