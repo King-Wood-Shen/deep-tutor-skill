@@ -20,6 +20,8 @@ The caller passes (in natural language or structured):
 
 If the caller did not specify `mode`, treat as `intake` if `findings.md` does not exist yet, else `incremental`.
 
+**Empty `sources` on intake** (e.g., `entry_mode: topic` with no URLs in the user's first message): when `mode == intake` AND `sources == []`, do NOT decide the fan-out path yet. First run XHS Step 1 (locate code) with the topic slug as the search seed; persist Step 1 hits to `sources/papers/`, `sources/code/`, `sources/web/` and treat THOSE as the effective sources for the fan-out decision (multi-agent if any `repo`/`local_code` found, single-agent paper-only otherwise). This prevents silently routing a topic-string input with available code into the paper-only branch.
+
 **Caller explicitly requested `incremental` but `findings.md` does not exist:** This is a contract error — incremental builds on prior intake. Do NOT silently fall through to intake (that would surprise the caller with a long-running first call). Instead, return early with the structured summary:
 ```
 Mode: error
@@ -173,7 +175,7 @@ For `mode == incremental` OR `sources` contain only paper(s):
 
 - Skip multi-agent intake entirely.
 - Run the v0.1.1 single-agent flow (one coordinator does all four pipeline steps).
-- Set `manifest.yaml.intake_strategy = "single"` (default; usually unchanged).
+- Set `manifest.yaml.intake_strategy = "single"` **unconditionally** (Read + Edit, same idempotent pattern as Step 0). The field may already read `"multi-agent"` from a prior heavy intake — the single-agent fallback path MUST overwrite it to `"single"` so the manifest accurately reflects the most recent intake strategy.
 - All other v0.1.1 rules (citations, code-coverage floor, demotion accounting) still apply.
 
 ## Mode-specific behavior
