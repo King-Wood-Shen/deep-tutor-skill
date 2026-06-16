@@ -13,6 +13,7 @@ Every topic gets a directory `<cwd>/.deeptutor/<topic-slug>/` containing:
 | `sources/papers/` | If papers fetched | deep-research | Paper excerpts |
 | `sources/code/` | If repos fetched | deep-research | Code excerpts with line refs |
 | `sources/web/` | If web fetched | deep-research | Web excerpts |
+| `_intake/<role>.md` | If multi-agent intake ran | deep-research specialists | Private per-specialist scratch findings (insight / bug / experiment). Coordinator reads these, merges, then writes the consolidated `findings.md`. Safe to delete after a week. |
 
 ## `manifest.yaml` schema
 
@@ -25,6 +26,7 @@ entry_mode: "paper"                   # paper | repo | local_code | topic
 current_mode: "light"                 # light | heavy
 intent: "learn"                       # learn | research
 execute_tier: false                   # bool; deep-research may run install/smoke only when true
+intake_strategy: "single"             # single | multi-agent (set by deep-research when intake runs)
 sources:
   - type: "paper"
     url: "https://arxiv.org/abs/1706.03762"

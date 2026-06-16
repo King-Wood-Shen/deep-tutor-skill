@@ -29,7 +29,7 @@ if [[ -d "$dir" ]]; then
   exit 0
 fi
 
-mkdir -p "$dir/sources/papers" "$dir/sources/code" "$dir/sources/web"
+mkdir -p "$dir/sources/papers" "$dir/sources/code" "$dir/sources/web" "$dir/_intake"
 
 now="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 mode="light"
@@ -47,6 +47,7 @@ entry_mode: "$entry_mode"
 current_mode: "$mode"
 intent: "$intent"
 execute_tier: false
+intake_strategy: "single"
 sources: []
 related: []
 EOF
