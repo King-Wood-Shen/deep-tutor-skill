@@ -34,6 +34,8 @@ bash <skill_dir>/scripts/init_workspace.sh "<slug>" "<title>" "<entry_mode>" "<i
 
 **Immediately after creation**, overwrite the placeholder root concept in `learning_path.md` (which the script writes as `- [ ] (root concept — fill in)`) with at least one real, topic-specific root node derived from the user's first message. Example: if topic is `transformer-self-attention`, replace the placeholder with `- [ ] Self-attention: Q/K/V projection and dot-product score`. This is required for the light-mode Calibrate action to anchor on a real concept.
 
+**Resumed-session interrupted-creation recovery:** If this is a resumed session (workspace already existed) AND `learning_path.md` still contains ONLY the line `- [ ] (root concept — fill in)` with no real node, treat the prior creation as interrupted: perform the root-node overwrite now (using the current message context to derive the node) before proceeding to Step 2. Without this, the Calibrate action has no anchor and the session permanently stalls on the placeholder.
+
 ## Step 2 — Route by mode
 
 - `current_mode == light` → follow [references/light-mode.md](references/light-mode.md) (this is the only mode shipped in MVP).
@@ -73,6 +75,11 @@ Honor these phrases at any turn:
 If any of (b) or (c) is true, the message is a legitimate follow-up; stay in the current workspace.
 
 If all three hold, ask: "你这条像是要切到别的主题（X）。要 (a) 在新工作区开 X，(b) 暂停当前主题保留进度，还是 (c) 我理解错了，继续当前主题？" Wait for the user's answer; do NOT silently invoke deep-research on the new topic inside the current workspace.
+
+**Follow-on behavior per option:**
+- **(a)** Force-create the new workspace via the normal Step 1 flow with the new topic's derived slug. The previous workspace remains untouched and resumable later.
+- **(b)** Reply "好，当前主题已保留 (位置: `.deeptutor/<old-slug>/`，下次回来直接说'回到 <slug>'或'继续 <slug>'即可)。现在开 X。" Then open the new topic via Step 1 flow. Do NOT modify the old workspace's manifest or files.
+- **(c)** Continue current workspace's Phase 1 / light-mode loop as if the disambiguation never fired. Do not log anything.
 
 ## Do NOT
 

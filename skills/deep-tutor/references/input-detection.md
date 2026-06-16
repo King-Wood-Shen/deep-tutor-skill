@@ -80,6 +80,6 @@ Only after both checks pass: load the manifest and skip workspace creation.
 
 User can say at any time:
 - "切到轻量模式" / "switch to light mode" → set `current_mode = light`
-- "切到研究模式" / "switch to research/heavy mode" → set `current_mode = heavy`
+- "切到研究模式" / "switch to research/heavy mode" → set `current_mode = heavy`. **See [../SKILL.md](../SKILL.md) §User overrides** for the Branch A (no findings.md yet → scripted reply + wait) vs Branch B (findings.md exists → continue) reply behavior that MUST accompany this mode-set. Setting mode without the reply breaks the handshake.
 - "新建主题 X" / "new topic X" → force-create fresh workspace with new slug
 - "继续主题 Y" / "resume topic Y" → load existing workspace by slug

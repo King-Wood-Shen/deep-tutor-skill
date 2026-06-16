@@ -16,6 +16,8 @@ Every topic gets a directory `<cwd>/.deeptutor/<topic-slug>/` containing:
 | `_intake/<role>.md` | If multi-agent intake ran | deep-research specialists | Private per-specialist scratch findings (insight / bug / experiment). Coordinator reads these, merges, then writes the consolidated `findings.md`. Safe to delete after a week — deletion does NOT reset intake; `findings.md` alone is authoritative. |
 | `_intake/_prior/` | If multi-agent intake ran more than once OR overwrote a pre-existing findings.md | deep-research coordinator (Step 0) | Archived prior scratch files and findings.md from earlier runs (filename pattern: `<timestamp>-<role>.md` / `<timestamp>-findings.md`). Preserved so user content is never silently overwritten. |
 | `_intake/_violations.md` | If a specialist breached the dispatch contract | deep-research coordinator (Step 3a) | Log of contract violations (e.g., scratch file missing despite `Found > 0`, cross-prefix entries). Empty / absent on healthy runs. |
+| `setup_notes.md` | If execute_tier ran Step 2 | deep-research execute-tier | Approval-gate artifact. Lists detected dependencies + proposed install/smoke commands. **User must reply "approve setup"** before install runs. Do NOT delete before install is approved — deleting breaks the handshake. |
+| `sources/code/_runs/<ts>.log` | If execute_tier ran install or smoke | deep-research execute-tier (Steps 3-4) | Run logs for `pip install` and smoke tests. Cited by 🐛 setup/smoke failure findings. Safe to delete only after the cited findings have been reviewed. |
 
 ## `manifest.yaml` schema
 
