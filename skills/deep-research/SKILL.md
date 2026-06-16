@@ -60,7 +60,9 @@ In a SINGLE main-agent response, issue TWO Agent tool calls so they run in paral
 - **Insight Hunter dispatch**: subagent_type = `general-purpose`, model = `sonnet` (reasoning quality matters more than cost for findings). Prompt = the shared dispatch template (below) with `<ROLE>` replaced by `insight-hunter` and the contents of `references/specialists/insight-hunter.md` plus `references/specialists/reflection-loop.md` inlined.
 - **Bug Hunter dispatch**: same template, role `bug-hunter`.
 
-Both must complete before Wave 2 starts. If either errors or returns `Found: 0`, **record the failure and proceed to Step 2 (Wave 2) regardless** — do NOT retry, and do NOT skip Wave 2. Note which specialist failed so it can appear in the Step 4 summary. Experiment Designer will simply receive an empty (or near-empty) `_intake/bug.md` or `_intake/insight.md` and is expected to set `Paired with Insights: 0` or `Paired with Bugs: 0` accordingly.
+Both must complete before Wave 2 starts. If at most ONE of the two errors or returns `Found: 0`, **record the failure and proceed to Step 2 (Wave 2) regardless** — do NOT retry, and do NOT skip Wave 2. Note which specialist failed so it can appear in the Step 4 summary. Experiment Designer will simply receive an empty (or near-empty) `_intake/bug.md` or `_intake/insight.md` and is expected to set `Paired with Insights: 0` or `Paired with Bugs: 0` accordingly.
+
+(If BOTH return zero, Step 2 has a separate skip rule — see below.)
 
 ### Step 2 — Wave 2 (sequential)
 
@@ -88,9 +90,11 @@ b. **Dedup**. Treat two entries as dedup candidates if ANY of the following hold
    **Log every merge** in `research_report.md` under a `## Dedup log` subsection (created if missing). Format per merge:
    > Note: `<id-1>` and `<id-2>` describe the same underlying issue; merged into <🐛|💡> section as `<surviving-id>`.
 c. **Validate citations** per [references/citation-rules.md](references/citation-rules.md). Findings that fail (e.g., missing line range) are demoted to a `## ⚠️ Unverified` section.
-   - **Cascade demotion**: if a 💡 or 🐛 finding is demoted to Unverified, ALSO demote every 🧪 finding that references it via `[[<parent-id>]]`. An experiment whose parent is unverified is itself unverified. Note this in the experiment's entry as `(parent demoted)`.
+   - **Cascade demotion**: if a 💡 or 🐛 finding is demoted to Unverified, ALSO demote every 🧪 finding that references it via `[[<parent-id>]]`. An experiment whose parent is unverified is itself unverified. In the experiment's entry, replace the parent link with `[[<parent-id> — DEMOTED]]` so the specific parent is named.
+   - **Multi-parent cascade**: if a 🧪 finding references multiple parents (`tests [[I-a]] [[B-b]]`) and only some are demoted, ONLY demote the experiment if ALL of its parents are demoted. If at least one parent remains verified, keep the experiment in 🧪 but annotate the demoted parent with the `— DEMOTED` suffix and add a `(partial-parent demotion)` tag at end of the experiment line.
 d. **Pair check**: every 💡 should have a matching 🧪. If not, add `- [ ] **TODO** Need experiment for I-<id>` to `findings.md`.
-   - **Stable ID collision check**: if two findings in the same section share a 6-hex ID, append `-2`, `-3`, etc. to disambiguate. Update all references in `_intake/experiment.md` to point at the renamed ID. Log the collision under the `## Dedup log` subsection in `research_report.md`.
+   - **Skip pair-check for demoted parents**: do NOT emit `TODO Need experiment for I-<id>` if `I-<id>` itself was demoted to Unverified in step c — demoted findings don't need partner experiments. Same for 🐛 → 🧪 pairing if you track that direction.
+   - **Stable ID collision check**: if two findings share a 6-hex ID (regardless of section / prefix — even `I-a3f2c1` vs `B-a3f2c1` collide for human readers), append `-2`, `-3`, etc. to disambiguate. Update all references in `_intake/experiment.md` to point at the renamed ID. Log the collision under the `## Dedup log` subsection in `research_report.md`.
 e. **Stable IDs**: re-verify all IDs follow `<prefix>-<6-hex>`; if specialists used pseudo-hash and you can compute a real one, rewrite; otherwise leave.
 f. **Write final artifacts**:
    - `findings.md` — three sections (💡, 🐛, 🧪), with `## ⚠️ Unverified` at the bottom if needed. **A section with zero entries MUST still be emitted as a header followed by `*(none found in this intake)*`** — never silently omit the section, because the deep-tutor heavy-mode loop relies on the section headers being present to scan unchecked items.
@@ -186,6 +190,7 @@ For `mode == incremental` OR `sources` contain only paper(s):
 - Add 1-3 findings as appropriate.
 - Append a section to `research_report.md` titled `## Follow-up: <question>` instead of rewriting the file.
 - Do NOT re-fetch sources you already have.
+- **Do NOT create, read, or write to `_intake/`** — that directory is multi-agent intake exclusive. Incremental mode writes directly to `findings.md` and `research_report.md`, single-agent.
 
 ## Citations
 
