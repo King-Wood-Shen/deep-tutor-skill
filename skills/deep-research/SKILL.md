@@ -49,7 +49,9 @@ In that case the coordinator (this skill, before any specialist dispatch) does:
 
 - Run XHS Step 1 (locate code) ONCE; persist all hits to `sources/papers/`, `sources/code/`, `sources/web/`. After this, specialists will read from these paths only.
 - Ensure `<workspace>/_intake/` exists (`init_workspace.sh` creates it; verify and `mkdir -p` if missing).
-- Set `manifest.yaml.intake_strategy = "multi-agent"`.
+- **Truncate scratch files**: for `<role>` in `{insight, bug, experiment}`, if `_intake/<role>.md` exists, archive it to `_intake/_prior/<timestamp>-<role>.md` and create an empty fresh file. This prevents stale findings from prior interrupted runs from mixing with the new run.
+- **Existing `findings.md` protection**: if `findings.md` already exists in the workspace (user-edited or from a prior single-agent intake), archive it to `_intake/_prior/<timestamp>-findings.md` before the coordinator writes the new one in Step 3f. Do NOT silently overwrite user content.
+- Set `manifest.yaml.intake_strategy = "multi-agent"` **unconditionally** (idempotent overwrite — the value may be "single", "multi-agent", or absent; in all cases set it to "multi-agent"). Use Read + Edit with `replace_all=true` against the regex `intake_strategy: "(single|multi-agent)"` line, or simply ensure the final manifest contains exactly one `intake_strategy: "multi-agent"` line.
 
 ### Step 1 — Wave 1 (parallel)
 
@@ -62,14 +64,20 @@ Both must complete before Wave 2 starts. If either errors or returns `Found: 0`,
 
 ### Step 2 — Wave 2 (sequential)
 
-Read `_intake/insight.md` and `_intake/bug.md`. Spawn the **Experiment Designer**:
+Read `_intake/insight.md` and `_intake/bug.md`. **Pre-check:**
+- If BOTH Wave 1 scratch files are empty or both specialists reported `Found: 0`, **SKIP Wave 2** entirely (Experiment Designer has nothing to ground experiments in). Set the experiment scratch to an empty file with a single line `*(no Wave 1 findings — Experiment Designer skipped)*`. Continue to Step 3 with what you have.
+- If exactly ONE of the two Wave 1 specialists returned content, proceed normally — Experiment Designer will set `Paired with <other>: 0` in its return.
+
+Otherwise, spawn the **Experiment Designer**:
 
 - subagent_type = `general-purpose`, model = `sonnet`.
 - Dispatch prompt: shared template with role `experiment-designer`, and the full contents of `_intake/insight.md` and `_intake/bug.md` embedded as a "Wave 1 findings to design experiments for:" section so the specialist can reference parent stable IDs.
 
 ### Step 3 — Aggregate + critic (coordinator, no 4th subagent)
 
-a. Read all three `_intake/*.md` files.
+a. Read all three `_intake/*.md` files. **Validate first:**
+   - For each specialist that reported `Found > 0`, the corresponding `_intake/<short-role>.md` MUST exist and be non-empty. If missing, treat as a contract violation: log to `_intake/_violations.md` and proceed as if that specialist returned `Found: 0`.
+   - For each entry inside a scratch file, check the stable-ID prefix matches the file (`I-*` in insight.md, `B-*` in bug.md, `E-*` in experiment.md). Cross-prefix entries are demoted to `## ⚠️ Unverified` regardless of other validation.
 b. **Dedup**. Treat two entries as dedup candidates if ANY of the following holds:
    - identical code citation (same `<file>:<lines>` range overlaps by ≥ 80% of either span), OR
    - both reference the same function/class name AND the same paper section, OR
@@ -80,7 +88,9 @@ b. **Dedup**. Treat two entries as dedup candidates if ANY of the following hold
    **Log every merge** in `research_report.md` under a `## Dedup log` subsection (created if missing). Format per merge:
    > Note: `<id-1>` and `<id-2>` describe the same underlying issue; merged into <🐛|💡> section as `<surviving-id>`.
 c. **Validate citations** per [references/citation-rules.md](references/citation-rules.md). Findings that fail (e.g., missing line range) are demoted to a `## ⚠️ Unverified` section.
+   - **Cascade demotion**: if a 💡 or 🐛 finding is demoted to Unverified, ALSO demote every 🧪 finding that references it via `[[<parent-id>]]`. An experiment whose parent is unverified is itself unverified. Note this in the experiment's entry as `(parent demoted)`.
 d. **Pair check**: every 💡 should have a matching 🧪. If not, add `- [ ] **TODO** Need experiment for I-<id>` to `findings.md`.
+   - **Stable ID collision check**: if two findings in the same section share a 6-hex ID, append `-2`, `-3`, etc. to disambiguate. Update all references in `_intake/experiment.md` to point at the renamed ID. Log the collision under the `## Dedup log` subsection in `research_report.md`.
 e. **Stable IDs**: re-verify all IDs follow `<prefix>-<6-hex>`; if specialists used pseudo-hash and you can compute a real one, rewrite; otherwise leave.
 f. **Write final artifacts**:
    - `findings.md` — three sections (💡, 🐛, 🧪), with `## ⚠️ Unverified` at the bottom if needed. **A section with zero entries MUST still be emitted as a header followed by `*(none found in this intake)*`** — never silently omit the section, because the deep-tutor heavy-mode loop relies on the section headers being present to scan unchecked items.
