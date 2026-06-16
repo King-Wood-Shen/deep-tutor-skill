@@ -38,6 +38,18 @@ Switch at any turn:
 - "切到轻量模式" / "switch to light mode"
 - "切到研究模式" / "switch to research mode"
 
+## Multi-agent intake (v0.2)
+
+When you enter heavy mode with at least one code source (a repo URL or local code directory), `deep-research` fans out into three specialist subagents at the intake step:
+
+- **💡 Insight Hunter** — finds paper-vs-code divergences and counter-intuitive design choices.
+- **🐛 Bug Hunter** — finds off-by-one, missing normalization, framework-default-vs-paper-claimed init, etc.
+- **🧪 Experiment Designer** — proposes concrete ablations that test each Insight or Bug finding.
+
+Wave 1 (Insight + Bug) runs in parallel; Wave 2 (Experiment Designer) runs once Wave 1 returns. Each specialist runs an internal reflection loop (max 3 rounds) and writes a private draft to `.deeptutor/<topic>/_intake/<role>.md`. The coordinator then merges, deduplicates, validates citations, and writes the consolidated `findings.md` and `research_report.md`.
+
+Paper-only research and `incremental` mode stay single-agent — fan-out only fires when there is code to scan and the workload is a fresh intake.
+
 ## Workspace layout
 
 ```
@@ -67,6 +79,11 @@ By default the skill never runs target code. To opt in, say "我要真跑这个 
 - `docs/superpowers/plans/` — implementation plan.
 
 ## Status
+
+**v0.2.0** — multi-agent intake released:
+- v0.1.0 acceptance criteria per design spec §6.4 still met.
+- v0.2 acceptance: R15-R18 multi-agent rounds pass 23/23; 5/5 v0.1.1 regression cases pass; intake_strategy routing verified.
+- 14 benchmark rounds total (10 formal + 4 hardening + 4 multi-agent).
 
 **v0.1.0** — acceptance criteria per design spec §6.4 met:
 - ≥ 2 benchmark cases per entry scenario pass.
