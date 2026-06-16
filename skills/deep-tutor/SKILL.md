@@ -62,13 +62,13 @@ Honor these phrases at any turn:
   - **Branch B — `findings.md` already exists (intake done):** reply with: "已切到研究模式。findings.md 已有 X 个项目，下一轮继续 Phase 1 教学/研究循环。" Do NOT re-run intake. Continue Phase 1 next turn.
 - "开启 execute_tier" / "enable execute_tier" / "我想真跑实验" → set `manifest.yaml.execute_tier = true` (add the field if missing — default value is `false`). Reply: "execute_tier 已开启。下次涉及代码运行时，deep-research 会写 setup_notes.md 等你 approve 才装环境。" This can be set at any turn, not just turn 1.
 - "新建主题 X" → force-create a new workspace.
-- "继续主题 Y" → load existing workspace.
+- "继续主题 Y" / "回到 X" / "切回 X" / "resume X" → load existing workspace by slug.
 - "忘了我" / "重新开始" → archive `.deeptutor/<slug>/` to `.deeptutor/_archive/<slug>-<timestamp>/` and create fresh.
 
 **Natural-language topic-switch detection** (turn 2+): even without the exact `"新建主题 X"` phrase, fire the disambiguation prompt below ONLY if ALL of the following hold:
 - (a) the message references a domain/topic different from the current `manifest.yaml.title` AND
 - (b) the message does NOT mention any unchecked node title from `learning_path.md` (cross-architecture comparison questions like "BERT 用同样的 √d_k 吗？" during a Transformer session must NOT fire — they refer to a related concept that anchors back to the current learning path) AND
-- (c) the message does NOT cite any item in `findings.md` (by stable id or paraphrase).
+- (c) the message does NOT cite any item in the **current workspace's `findings.md`** (by stable id or paraphrase). When multiple workspaces exist under `.deeptutor/` in the same cwd, only the active workspace's `findings.md` matters for this check.
 
 If any of (b) or (c) is true, the message is a legitimate follow-up; stay in the current workspace.
 

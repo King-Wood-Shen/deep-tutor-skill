@@ -40,7 +40,7 @@ c. **Quiz from findings** — questions derived from 💡/🐛 items make better
 
 d. **User wants to actually run an experiment** — switch into execute-tier flow (see [execute-tier.md](../../../skills/deep-research/references/execute-tier.md)).
 
-e. **Information gap** — call `deep-research` with `mode: incremental` and a narrow `question`.
+e. **Information gap** — call `deep-research` with `mode: incremental` and a narrow `question`. **Always pass `sources: <manifest.yaml.sources[]>`** so the incremental call can ground on the same code/paper the original intake used; otherwise the call may degrade to paper-only or re-fetch sources. Do NOT trigger a fresh intake — incremental builds on what `findings.md` already contains.
 
 ### 3. Reply
 
@@ -52,7 +52,7 @@ Mark discussed `findings.md` items as `[x]`. Update `learning_log.md`, `learning
 
 ## Rules
 
-- **Intake runs exactly once per workspace.** If `findings.md` exists, you are NOT in Phase 0 — go straight to Phase 1.
+- **Intake runs exactly once per workspace.** If `findings.md` exists, you are NOT in Phase 0 — go straight to Phase 1. **The presence or absence of `_intake/` is irrelevant** — that directory is the multi-agent specialist scratch from intake time and is safe for the user to delete after a week (per `workspace-spec.md`). `findings.md` alone is the authoritative artifact for "intake has happened."
 - **Do not dump findings in bulk.** Surface one at a time, tied to current concept.
 - **Code citations from `sources/code/` beat paper citations from `sources/papers/`.** Prefer the former when teaching.
 - **Execute tier is opt-in.** Never auto-clone, never auto-install.
