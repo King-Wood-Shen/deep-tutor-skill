@@ -58,7 +58,7 @@ In a SINGLE main-agent response, issue TWO Agent tool calls so they run in paral
 - **Insight Hunter dispatch**: subagent_type = `general-purpose`, model = `sonnet` (reasoning quality matters more than cost for findings). Prompt = the shared dispatch template (below) with `<ROLE>` replaced by `insight-hunter` and the contents of `references/specialists/insight-hunter.md` plus `references/specialists/reflection-loop.md` inlined.
 - **Bug Hunter dispatch**: same template, role `bug-hunter`.
 
-Both must complete before Wave 2 starts. If either errors or returns `Found: 0`, record that and continue — do NOT retry.
+Both must complete before Wave 2 starts. If either errors or returns `Found: 0`, **record the failure and proceed to Step 2 (Wave 2) regardless** — do NOT retry, and do NOT skip Wave 2. Note which specialist failed so it can appear in the Step 4 summary. Experiment Designer will simply receive an empty (or near-empty) `_intake/bug.md` or `_intake/insight.md` and is expected to set `Paired with Insights: 0` or `Paired with Bugs: 0` accordingly.
 
 ### Step 2 — Wave 2 (sequential)
 
@@ -75,7 +75,7 @@ c. **Validate citations** per [references/citation-rules.md](references/citation
 d. **Pair check**: every 💡 should have a matching 🧪. If not, add `- [ ] **TODO** Need experiment for I-<id>` to `findings.md`.
 e. **Stable IDs**: re-verify all IDs follow `<prefix>-<6-hex>`; if specialists used pseudo-hash and you can compute a real one, rewrite; otherwise leave.
 f. **Write final artifacts**:
-   - `findings.md` — three sections (💡, 🐛, 🧪), with `## ⚠️ Unverified` at the bottom if needed.
+   - `findings.md` — three sections (💡, 🐛, 🧪), with `## ⚠️ Unverified` at the bottom if needed. **A section with zero entries MUST still be emitted as a header followed by `*(none found in this intake)*`** — never silently omit the section, because the deep-tutor heavy-mode loop relies on the section headers being present to scan unchecked items.
    - `research_report.md` — narrative report. Include `## Cross-implementation comparison` subsection if ≥ 2 code sources were scanned (per `xhs-methodology.md` Step 4).
 
 ### Step 4 — Cleanup and return
@@ -85,6 +85,7 @@ Leave `_intake/` in place for 7 days (user can `rm -rf` later). Return the struc
 ```
 Mode: intake (multi-agent)
 Specialists: <3/3 | 2/3 | 1/3 | 0/3> returned
+Failed: <comma-separated specialist names with reason, e.g., "bug-hunter (Found: 0)">    # omit this line entirely when 3/3 returned
 Wrote: findings.md, research_report.md, _intake/*.md
 Findings: <N>💡 / <N>🐛 / <N>🧪 / <N>⚠️Unverified
 Code coverage: <X>%
