@@ -70,7 +70,15 @@ Read `_intake/insight.md` and `_intake/bug.md`. Spawn the **Experiment Designer*
 ### Step 3 — Aggregate + critic (coordinator, no 4th subagent)
 
 a. Read all three `_intake/*.md` files.
-b. **Dedup**: titles with cosine-similar wording OR identical code citations merge into one entry, preserving all source refs.
+b. **Dedup**. Treat two entries as dedup candidates if ANY of the following holds:
+   - identical code citation (same `<file>:<lines>` range overlaps by ≥ 80% of either span), OR
+   - both reference the same function/class name AND the same paper section, OR
+   - titles are cosine-similar (loose synonym/paraphrase of the same concept).
+
+   When merging a 💡 and 🐛 pair, place the merged entry in **🐛** if the merged description contains a correctness claim (any of: "omits", "missing", "wrong", "incorrect", "violates", "off by", "should be"); otherwise place in **💡**. Preserve all source refs from both originals.
+
+   **Log every merge** in `research_report.md` under a `## Dedup log` subsection (created if missing). Format per merge:
+   > Note: `<id-1>` and `<id-2>` describe the same underlying issue; merged into <🐛|💡> section as `<surviving-id>`.
 c. **Validate citations** per [references/citation-rules.md](references/citation-rules.md). Findings that fail (e.g., missing line range) are demoted to a `## ⚠️ Unverified` section.
 d. **Pair check**: every 💡 should have a matching 🧪. If not, add `- [ ] **TODO** Need experiment for I-<id>` to `findings.md`.
 e. **Stable IDs**: re-verify all IDs follow `<prefix>-<6-hex>`; if specialists used pseudo-hash and you can compute a real one, rewrite; otherwise leave.
