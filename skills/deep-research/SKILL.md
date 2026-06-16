@@ -94,6 +94,16 @@ Confidence: high | medium | low
 
 ## Shared dispatch template
 
+**Naming convention (important — used in both `<ROLE>` substitution and `<role>` short name):**
+
+| Specialist | `<ROLE>` (full, used in prompt headings) | `<role>` (short, used in filenames) | Scratch filename |
+|---|---|---|---|
+| Insight Hunter | `insight-hunter` | `insight` | `_intake/insight.md` |
+| Bug Hunter | `bug-hunter` | `bug` | `_intake/bug.md` |
+| Experiment Designer | `experiment-designer` | `experiment` | `_intake/experiment.md` |
+
+The dispatch template uses `<role>` (short) for the scratch filename, NEVER the full `<ROLE>` name. A specialist that writes to `_intake/insight-hunter.md` instead of `_intake/insight.md` is a contract violation — the coordinator's aggregate step reads only the short-name files.
+
 When invoking a specialist via the Agent tool, the prompt has this shape:
 
 ```
@@ -110,17 +120,21 @@ Sources (already populated by the coordinator):
     ...
 
 YOUR ROLE-SPECIFIC INSTRUCTIONS
-<full text of references/specialists/<role>.md>
+<full text of references/specialists/<ROLE>.md>
 
 SHARED REFLECTION LOOP
 <full text of references/specialists/reflection-loop.md>
 
 CONSTRAINTS
 - Read ONLY from sources/ — do NOT fetch new URLs. The coordinator already fetched.
-- Append findings to <workspace>/_intake/<role>.md. NEVER write findings.md, research_report.md, manifest.yaml, or other specialists' scratch.
+- Append findings to <workspace>/_intake/<role>.md (use the short name from the table above: `insight`, `bug`, or `experiment`). NEVER write findings.md, research_report.md, manifest.yaml, or other specialists' scratch.
 - Max 3 reflection rounds.
 - Wall budget: 5 minutes (soft).
 ```
+
+## Manifest write mechanism
+
+The coordinator updates `manifest.yaml.intake_strategy` by reading the file with Read, replacing the line `intake_strategy: "single"` with `intake_strategy: "multi-agent"` via Edit, then bumping `updated_at` to the current ISO timestamp via a second Edit. Do NOT rewrite the whole file from scratch (preserves user-edited fields like `related[]`).
 
 For Experiment Designer only, after the `SHARED REFLECTION LOOP` block, add:
 

@@ -36,11 +36,13 @@ Same THINK → FIND → SELF-CRITIQUE → DECIDE, focused only on the gaps from 
 
 Same loop, only if Round 2 still left gaps.
 
-## Stopping conditions (any one is sufficient)
+## Stopping conditions (checked in this priority order — first match wins)
 
-- 3 rounds completed.
-- Latest round added 0 new findings.
-- Wall time has exceeded 5 minutes since dispatch (approximate; you may estimate from token/turn count).
-- Self-critique reports no remaining gaps.
+1. **3 rounds completed** (hard cap; stop regardless of other state).
+2. **Wall time exceeded 5 minutes** since dispatch (approximate from token/turn count) — emergency stop even if threshold not met.
+3. **Latest round added 0 new findings** AND your minimum threshold is already met → stop (further rounds would not improve outcome).
+4. **Self-critique reports no remaining gaps** AND your minimum threshold is already met → stop.
+
+If conditions 3 or 4 fire but the minimum threshold is NOT yet met, continue to the next round and direct the THINK step at the unmet gap explicitly — do not stop with insufficient findings.
 
 After stopping, emit the structured return summary your role prompt specifies.
