@@ -30,6 +30,8 @@ Same as light mode plus: scan `findings.md` for unchecked `[ ]` items.
 
 **User-edit reconciliation:** between turns, the user may have edited `findings.md` (added a note, changed a checkbox, added a new entry without a stable ID). When you read it back, accept user changes as authoritative: user-added entries without a stable ID get one assigned (run the same `<prefix>-<6-hex>` algorithm against title + first source ref); user-flipped checkboxes are respected; user-added free-form text outside the three sections is preserved verbatim. Do NOT silently overwrite or normalize user content.
 
+**Read-time source-existence check:** before citing any `sources/<type>/<file>.md` from `findings.md` in your reply, verify the file STILL exists in the workspace (the user may have deleted `sources/` mid-session, or a particular source file). If a citation target is missing, do NOT silently broken-link it to the user. Instead: tell the user "原 source 文件 `sources/...` 已不在 workspace（你可能删了或移走了），这条 finding 暂时不可验证。要 (a) 重新跑 intake 重新抓 source，还是 (b) 跳过这条 finding 继续？" Wait for choice.
+
 ### 2. Choose ONE action
 
 Priority order:
