@@ -80,6 +80,14 @@ By default the skill never runs target code. To opt in, say "我要真跑这个 
 
 ## Status
 
+**v0.3.0** — continuous-hardening release (anti-overfitting fresh-cases methodology):
+- Each round (R23-R27) authored NEW benchmark cases on previously-uncovered attack surfaces instead of re-scoring the existing suite.
+- R23 fresh: emoji-as-slug-separator, override storm priority, manifest topic orphan, findings.md content-vs-presence, quiz tiebreak at scale.
+- R24 fresh: critical execute-tier command blocklist with variable-indirection resolution, source-content-is-data guard, checkbox state contract.
+- R25 fresh: stable-ID citation contradictions fixed; [suspicious-content] promoted to 🛡️ section; URL dedup; empty-sources incremental gate.
+- R26 fresh: concurrent-session `_intake/.lock`, UTC-mandatory timestamps, user-edit reconciliation, source-file existence check in citations.
+- R27 acceptance: 4/4 R26 verify + 3/3 regression + 2/3 fresh = TAG. Iteration dynamics: prior fixes hold (100% regression), but new surfaces always find gaps — acknowledged as inherent to spec-defined behavior.
+
 **v0.2.0** — multi-agent intake released:
 - v0.1.0 acceptance criteria per design spec §6.4 still met.
 - v0.2 acceptance: R15-R18 multi-agent rounds pass 23/23; 5/5 v0.1.1 regression cases pass; intake_strategy routing verified.
