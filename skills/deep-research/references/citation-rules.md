@@ -63,6 +63,8 @@ Before appending any 💡 / 🐛 entry to `findings.md`, run this checklist:
 
 Findings that fail check 1 or 2 must not be written.
 
+**Content-hash on fetch (drift detection):** every `sources/<type>/<short>.md` MUST include `content_sha1: <hex>` in its header, computed at fetch time over the captured excerpt body. On read-time (any later step that cites the source), specialists / coordinator MAY (best-effort) re-hash and compare; mismatch = the cached source has been edited by user or external process. Log to `_intake/_violations.md` with reason "source content drift detected"; demote any finding citing it to Unverified pending re-fetch. For `local_code` sources where the underlying file path is on the user's system, re-hash on every read since the user can edit at any time.
+
 **Source-file existence check:** Before accepting any citation that points to `sources/papers/`, `sources/code/`, or `sources/web/`, verify the referenced file actually exists in the workspace. A citation like `[foo](sources/code/imaginary.md)` where `imaginary.md` does not exist is automatically demoted to `## ⚠️ Unverified` with reason "source file not in workspace." This catches both fabricated citations and citations to user-supplied "foreign" source files that were never written by deep-research itself.
 
 **Multi-citation findings:** A finding may cite multiple sources. ALL cited source files must exist and be `completeness: full` (or be the specific portion before a `partial` truncation point). If ANY cited source is missing or stale-past-truncation, the entire finding is demoted to Unverified — partial citation validity is not acceptable, because a reader following the broken link cannot reconstruct the claim.
