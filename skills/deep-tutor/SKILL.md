@@ -89,6 +89,8 @@ When a single message contains MULTIPLE override phrases, apply them in this **p
 
 If a message contains, say, both "新建主题 X" + "切到研究模式", apply rule 2 (create new workspace), and inside the newly-created workspace honor the mode override on the SAME turn (Branch A/B logic still applies). Always tell the user what you applied and what you queued, e.g., "已新建主题 X 并切到研究模式 (Branch A)；execute_tier 标志保持默认 false，需要时再说'开启 execute_tier'。"
 
+**Mid-quiz override guard (applies to ALL override phrases below):** Before executing any override, check whether the PREVIOUS turn's chosen action was `d` (quiz) in light mode or `c` (quiz from findings) in heavy mode AND the current turn contains no quiz answer. This condition means the user mode-switched (or otherwise overrode) without answering a pending quiz. In that case, BEFORE executing the override: open `quizzes.md`, find the item that was just dispatched in the previous turn (it will have an empty `History:` block — no history entries at all), and append `- <ISO timestamp> — [skipped: user override on turn <N> before answer received]` to its `History:` block. This entry ensures the item is treated as tiebreak-(1) priority (equivalent to `incorrect ✗`) in future quiz turns, not as "never asked." Then proceed with the override. If no such item exists (previous turn was not a quiz), skip this guard.
+
 Honor these phrases at any turn:
 - "切到轻量模式" / "switch to light mode" → set `current_mode = light`.
 - "切到研究模式" / "switch to heavy/research mode" → set `current_mode = heavy` in `manifest.yaml`. Two cases:

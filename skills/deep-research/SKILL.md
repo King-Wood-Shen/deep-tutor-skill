@@ -207,6 +207,7 @@ For `mode == incremental` OR `sources` contain only paper(s):
 - Append a section to `research_report.md` titled `## Follow-up: <question>` instead of rewriting the file.
 - Do NOT re-fetch sources you already have.
 - **Do NOT create, read, or write to `_intake/`** — that directory is multi-agent intake exclusive. Incremental mode writes directly to `findings.md` and `research_report.md`, single-agent.
+- **User-retitled finding dedup guard**: before writing any new finding, scan existing `findings.md` entries for an HTML comment `<!-- title-edited: id frozen; ... -->` on the line after the entry. For those entries, match by stable ID only — do NOT re-derive a new hash from the current title to test for duplicates. If the new finding's derived hash matches the original ID of a frozen-ID entry (i.e., `sha1(new_title + source_ref)[:6]` does NOT match the frozen ID but content is clearly the same finding), skip insertion and update the existing entry in place instead.
 
 ## Citations
 
