@@ -82,6 +82,11 @@ By default the skill never runs target code. To opt in, say "我要真跑这个 
 
 ## Status
 
+**v0.3.1** — extended continuous-hardening:
+- R28: atomicity check (count `Found:` claim vs actual scratch entries) + specialist citation spot-check (re-read cited lines before submitting findings).
+- R29: deferred Windows-path + ro-filesystem error paths verified; v0.3.1 ships them.
+- Honest dynamics: 7 fresh-attack rounds (R23-R29) plateaued at ~25% pass rate. Zero regressions across all rounds. Marginal ROI of further rounds is asymptotic — known v0.3.2 backlog: double-dispatch guard, out-of-scope refusal, local-PDF text extraction.
+
 **v0.3.0** — continuous-hardening release (anti-overfitting fresh-cases methodology):
 - Each round (R23-R27) authored NEW benchmark cases on previously-uncovered attack surfaces instead of re-scoring the existing suite.
 - R23 fresh: emoji-as-slug-separator, override storm priority, manifest topic orphan, findings.md content-vs-presence, quiz tiebreak at scale.
