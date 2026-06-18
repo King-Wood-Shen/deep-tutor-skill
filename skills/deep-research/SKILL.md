@@ -61,7 +61,13 @@ In that case the coordinator (this skill, before any specialist dispatch) does:
 
 ### Step 1 — Wave 1 (parallel)
 
-**Double-dispatch guard:** Before issuing Agent calls, check whether `_intake/insight.md` or `_intake/bug.md` already has content from this same intake (i.e., file mtime is newer than `manifest.created_at`'s most recent overwrite-to-multi-agent moment). If so, a prior dispatch already happened; do NOT re-dispatch (would conflict with Principle P2). Instead, read the existing scratch and proceed to Wave 2. **Crash-resume baseline:** if the prior dispatch state is ambiguous (mtime older than any reasonable freshness window — say > 5 minutes from now without a `.lock` file present), assume the prior run crashed mid-Wave-1: apply P7 path 2, archive the existing `_intake/` contents to `_intake/_prior/<ts>-resumed/`, and proceed with a clean dispatch.
+**Double-dispatch guard:** Before issuing Agent calls, evaluate in this order:
+
+1. **Wave-2 crash partial recovery** (check FIRST): if `insight.md` AND `bug.md` both exist with at least one entry AND pass the count-consistency check (Step 3a) AND `experiment.md` is absent or empty AND `findings.md` is absent — this means Wave 1 completed but the session crashed during Wave 2. Do NOT re-dispatch Wave 1. Instead, preserve the existing `insight.md` and `bug.md`, log the resume path to `_intake/_violations.md` with reason `"Wave 2 crash resume — Wave 1 scratch preserved"`, and proceed directly to Step 2 (Wave 2 dispatch). This avoids discarding fully valid Wave 1 specialist work.
+
+2. **Already-dispatched guard** (check SECOND): if `_intake/insight.md` or `_intake/bug.md` already has content from this same intake (i.e., file mtime is newer than `manifest.updated_at`'s most recent overwrite-to-multi-agent moment AND the wall-clock age of those files is ≤ 5 minutes), a prior dispatch from THIS session is still live; do NOT re-dispatch (would conflict with Principle P2). Instead, read the existing scratch and proceed to Wave 2.
+
+3. **Crash-resume baseline** (check THIRD): if the prior dispatch state is ambiguous (the scratch files' wall-clock age is > 5 minutes from NOW, and `.lock` is not present), assume the prior run crashed mid-Wave-1 and the Wave-2 partial recovery check above did not apply: apply P7 path 2, archive the existing `_intake/` contents to `_intake/_prior/<ts>-resumed/`, and proceed with a clean dispatch. Note: evaluate "wall-clock age > 5 minutes from NOW" against the CURRENT timestamp, NOT against `manifest.updated_at` — the two clocks differ in cross-session crash scenarios.
 
 In a SINGLE main-agent response, issue TWO Agent tool calls so they run in parallel:
 
