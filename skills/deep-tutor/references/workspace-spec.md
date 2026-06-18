@@ -24,8 +24,8 @@ Every topic gets a directory `<cwd>/.deeptutor/<topic-slug>/` containing:
 ```yaml
 topic: "attention-mechanism"          # kebab-case slug, <= 6 words
 title: "Attention Mechanism Deep Dive" # human-readable
-created_at: "2026-06-15T14:23:00Z"
-updated_at: "2026-06-15T14:23:00Z"
+created_at: "2026-06-15T14:23:00Z"   # ISO 8601 UTC; the trailing "Z" is REQUIRED — local-timezone offsets like "+08:00" are rejected to keep cross-machine workspace timestamps comparable
+updated_at: "2026-06-15T14:23:00Z"   # same — UTC + "Z" mandatory
 entry_mode: "paper"                   # paper | repo | local_code | topic
 current_mode: "light"                 # light | heavy
 intent: "learn"                       # learn | research

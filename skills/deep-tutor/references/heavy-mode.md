@@ -28,6 +28,8 @@ Each subsequent turn follows this loop:
 
 Same as light mode plus: scan `findings.md` for unchecked `[ ]` items.
 
+**User-edit reconciliation:** between turns, the user may have edited `findings.md` (added a note, changed a checkbox, added a new entry without a stable ID). When you read it back, accept user changes as authoritative: user-added entries without a stable ID get one assigned (run the same `<prefix>-<6-hex>` algorithm against title + first source ref); user-flipped checkboxes are respected; user-added free-form text outside the three sections is preserved verbatim. Do NOT silently overwrite or normalize user content.
+
 ### 2. Choose ONE action
 
 Priority order:

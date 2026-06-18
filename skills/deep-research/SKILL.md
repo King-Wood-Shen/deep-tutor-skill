@@ -49,6 +49,8 @@ In that case the coordinator (this skill, before any specialist dispatch) does:
 
 ### Step 0 — Pre-fan-out
 
+**Single-session assumption (BLOCKER):** This skill assumes ONE Claude session at a time writing to a given `.deeptutor/<slug>/` workspace. If two sessions concurrently invoke intake on the same workspace, `_intake/*.md` writes can interleave and silently lose data. Before Step 0 actions, check whether `_intake/.lock` exists. If yes, abort with: "Another session appears to be running intake on this workspace (`.deeptutor/<slug>/_intake/.lock` exists, last touched at `<mtime>`). Wait for it to finish, or remove the lock file if you're sure no other session is active, then retry." If no, create `_intake/.lock` as an empty file with current ISO timestamp embedded in a comment line, do all of Step 0-3, then delete `_intake/.lock` at the end of Step 4. The lock is best-effort (no atomic CAS in markdown), but documents the assumption and catches the common case.
+
 - Run XHS Step 1 (locate code) ONCE; persist all hits to `sources/papers/`, `sources/code/`, `sources/web/`. After this, specialists will read from these paths only.
 - Ensure `<workspace>/_intake/` exists (`init_workspace.sh` creates it; verify and `mkdir -p` if missing).
 - **Truncate scratch files**: for `<role>` in `{insight, bug, experiment}`, if `_intake/<role>.md` exists, archive it to `_intake/_prior/<timestamp>-<role>.md` and create an empty fresh file. This prevents stale findings from prior interrupted runs from mixing with the new run.
