@@ -24,6 +24,8 @@ The 6-char hex hash is the first 6 characters of `sha1(title + first source ref)
 ### SELF-CRITIQUE
 After writing Round 1 findings, re-read them. Ask the role-specific critique questions (see your role prompt). Note any gaps as `<!-- TODO Round 2: ... -->` HTML comments at the bottom of your scratch file.
 
+**Citation spot-check (mandatory)**: for each finding you wrote, **re-read the actual lines** at the cited `<file>:<line-start>-<line-end>` from `sources/code/<file>.md`. Verify the content at those lines plausibly supports the finding's claim. If the cited lines are blank, are a different function, are `# end of file`, or are otherwise unrelated to the claim, the citation is factually wrong — either fix the line range (find where the claim actually lives) or drop the finding. A format-valid but factually-wrong citation is the worst kind of false positive: the coordinator's Step 3c validator cannot distinguish it from a correct one. This spot-check is YOUR responsibility as the specialist.
+
 ### DECIDE
 - If self-critique surfaced gaps AND you have NOT yet hit the role's minimum threshold → continue to Round 2 with the gaps as focus.
 - Else: STOP and return.
