@@ -82,6 +82,15 @@ By default the skill never runs target code. To opt in, say "我要真跑这个 
 
 ## Status
 
+**v0.4.0** — methodology + convergence release:
+- Meta-defensive principles P1-P9 added to deep-research SKILL.md (trust no input verbatim, single-writer per artifact, idempotent ops, OOS refusal, surface failures, locality, invariant-violation = stop, cross-artifact consistency, session-continuity-at-design-time).
+- Manifest type/null fallback unifies absent/null/empty/wrong-type field handling.
+- 8-substep slug normalization (emoji separator, camelCase split, CJK transliteration, empty-slug fallback).
+- CRITICAL execute-tier security: blocklist now scans referenced files (requirements.txt --index-url bypass, --trusted-host, git+ssh in deps, shell metachars).
+- **R42 controlled-experiment finding**: prior R30-R41 "~50% pass rate" was largely benchmark methodology artifacts, not spec bugs. Validated by disciplined methodology checklist (`docs/superpowers/checklists/benchmark-methodology-checklist.md`).
+- **R44/R45/R46 convergence**: 3 consecutive rounds at 100% on different clusters (session lifecycle, cross-topic transfer, learning-path DAG edits) using disciplined methodology — 0 CRITICAL, 0 MAJOR.
+- Per-tier postmortem at `docs/superpowers/retrospectives/`.
+
 **v0.3.1** — extended continuous-hardening:
 - R28: atomicity check (count `Found:` claim vs actual scratch entries) + specialist citation spot-check (re-read cited lines before submitting findings).
 - R29: deferred Windows-path + ro-filesystem error paths verified; v0.3.1 ships them.

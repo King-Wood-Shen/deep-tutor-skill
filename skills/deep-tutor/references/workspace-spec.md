@@ -86,6 +86,14 @@ On incremental writes, `deep-research` MUST NOT reuse an existing ID for a diffe
 
 Quiz IDs use `Q-<6-char hash>` of stem text. Selection for spaced repetition (light-mode action `d`): prefer items whose last history entry is `incorrect ✗` OR whose `last asked` is > 5 turns ago.
 
+**Mode-switch mid-quiz (skipped-answer state):** if the coordinator dispatched a quiz item (wrote the item to `quizzes.md` and sent the question to the user) but the user's next turn triggered a user-override (e.g., "切到研究模式", "忘了我", "新建主题 X") rather than answering, the override consumes the turn and no answer is recorded. To prevent the item from appearing as "never asked" with infinite priority in later turns, the override handler MUST append the following entry to the item's `History:` block before executing the override:
+
+```
+  - <ISO timestamp> — [skipped: user override on turn <N> before answer received]
+```
+
+This entry is treated equivalently to `incorrect ✗` for tiebreak (1) priority purposes — the item is considered "attempted but unanswered" and should be re-surfaced promptly. The override handler (SKILL.md §User overrides) is responsible for this write; it must read `quizzes.md`, find the item with empty History that was just posted (i.e., written within the current session's last turn), and append the skipped entry.
+
 ## `learning_path.md` structure
 
 ```markdown

@@ -37,4 +37,24 @@ Use to test depth of understanding after multiple concepts mastered.
 - ❌ Asking multiple questions in one turn — pick one and wait.
 - ❌ Asking yes/no questions — always require the user to reason.
 - ❌ Hinting the answer in the question itself ("Isn't it true that...?").
-- ❌ Following a wrong user answer with the right answer — probe again with a different angle first.
+- ❌ Following a wrong user answer with the right answer — probe again with a different angle first. **Exception**: see "User-autonomy override" and "Escalation ceiling" below.
+
+## Escalation ceiling (anti-loop)
+
+After **3 consecutive wrong/incomplete answers** on the SAME concept (track via `quizzes.md` history of the same `Source:` value or `learning_log.md` mentions of the same node), STOP probing and switch to direct teaching:
+
+> "我们在这个点 (`<concept>`) 上转了 3 圈，看来从这个角度切入不顺。我直接讲一下：[1-2 paragraph direct explanation]. 然后我换个角度再出一题。"
+
+After the direct explanation, generate a NEW quiz from a different angle (definition → application; or theory → counter-example). This prevents demoralizing loops.
+
+## User-autonomy override
+
+If the user explicitly says "直接告诉我答案" / "just tell me" / "我不想猜了" / "skip the question, what's the answer" (any clear request for direct content), provide the direct answer immediately. Do NOT enforce Socratic probing against the user's stated preference.
+
+- Append a `learning_log.md` note: "User opted out of Socratic probe on `<node>`; provided direct answer."
+- On the next turn for the SAME node, default back to Socratic mode unless the user repeats the override.
+- The "follow wrong with right" anti-pattern does NOT apply when the user explicitly asks for the right answer.
+
+## Verbatim-copy detection (anti-gaming)
+
+If the user's quiz answer is a verbatim or near-verbatim copy of the reference answer, the question stem, or text visible in `findings.md` / `sources/`, do NOT accept it as a `correct ✓` mark — they may have looked it up rather than understood. Instead, probe with a follow-up that requires applying or transforming the concept (use Socratic pattern P3 Counter-example or P5 Why-this-not-that). Only mark `correct ✓` after a non-copy follow-up answer.

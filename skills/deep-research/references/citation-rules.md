@@ -43,6 +43,16 @@ license: <if known>
 
 Followed by the actual excerpt (key passages or code blocks). Do not store full PDFs or full repos — only the cited passages.
 
+**Completeness marker (mandatory):** every `sources/<type>/<short>.md` MUST include a header line `completeness: full | partial | scanned-image-only`:
+- `full` — fetch returned the entire content; safe to cite any portion.
+- `partial` — fetch was truncated (timeout, size limit, rate limit, redirect chain too long). MUST also include `truncated_at: <line-or-section>`. Findings citing content AFTER the truncation point MUST be tagged `[no-line-ref]` and demoted to Unverified per the existing citation-rules — never fabricate content past the cut.
+- `scanned-image-only` — PDF or page has no extractable text. Findings sourced from it always carry `[no-line-ref]`.
+
+**Staleness check:** the `fetched_at` field is mandatory and ISO 8601 UTC, OR the literal value `null` if the source was declared but never fetched yet. On intake (mode==intake):
+- If `fetched_at == null` → fetch it now (fresh fetch, no staleness needed).
+- If `fetched_at` is a timestamp > **30 days ago** from `manifest.updated_at` → re-fetch.
+- If re-fetch fails (404, timeout, network unavailable), keep the cached version but add a `staleness: <N>-days-old (re-fetch failed)` line to the source header and surface it in the caller's structured summary as `Stale sources: <N> over 30d`.
+
 ## Self-check before writing any finding
 
 Before appending any 💡 / 🐛 entry to `findings.md`, run this checklist:
@@ -53,7 +63,11 @@ Before appending any 💡 / 🐛 entry to `findings.md`, run this checklist:
 
 Findings that fail check 1 or 2 must not be written.
 
+**Content-hash on fetch (drift detection):** every `sources/<type>/<short>.md` MUST include `content_sha1: <hex>` in its header, computed at fetch time over the captured excerpt body. On read-time (any later step that cites the source), specialists / coordinator MAY (best-effort) re-hash and compare; mismatch = the cached source has been edited by user or external process. Log to `_intake/_violations.md` with reason "source content drift detected"; demote any finding citing it to Unverified pending re-fetch. For `local_code` sources where the underlying file path is on the user's system, re-hash on every read since the user can edit at any time.
+
 **Source-file existence check:** Before accepting any citation that points to `sources/papers/`, `sources/code/`, or `sources/web/`, verify the referenced file actually exists in the workspace. A citation like `[foo](sources/code/imaginary.md)` where `imaginary.md` does not exist is automatically demoted to `## ⚠️ Unverified` with reason "source file not in workspace." This catches both fabricated citations and citations to user-supplied "foreign" source files that were never written by deep-research itself.
+
+**Multi-citation findings:** A finding may cite multiple sources. ALL cited source files must exist and be `completeness: full` (or be the specific portion before a `partial` truncation point). If ANY cited source is missing or stale-past-truncation, the entire finding is demoted to Unverified — partial citation validity is not acceptable, because a reader following the broken link cannot reconstruct the claim.
 
 **Demotion accounting:** When any findings are demoted to `## ⚠️ Unverified`:
 - The caller-facing summary (defined in `deep-research/SKILL.md`) must count only the **verified** findings in the `Findings: <N>💡 / <N>🐛 / <N>🧪` line. Report unverified counts separately as `Unverified: <N>` to keep the headline trustworthy.

@@ -28,11 +28,15 @@ Each subsequent turn follows this loop:
 
 Same as light mode plus: scan `findings.md` for unchecked `[ ]` items.
 
-**User-edit reconciliation:** between turns, the user may have edited `findings.md` (added a note, changed a checkbox, added a new entry without a stable ID). When you read it back, accept user changes as authoritative: user-added entries without a stable ID get one assigned (run the same `<prefix>-<6-hex>` algorithm against title + first source ref); user-flipped checkboxes are respected; user-added free-form text outside the three sections is preserved verbatim. Do NOT silently overwrite or normalize user content.
+**User-edit reconciliation:** between turns, the user may have edited `findings.md` (added a note, changed a checkbox, added a new entry without a stable ID). When you read it back, accept user changes as authoritative: user-added entries without a stable ID get one assigned (run the same `<prefix>-<6-hex>` algorithm against title + first source ref); user-flipped checkboxes are respected; user-added free-form text outside the three sections is preserved verbatim. Do NOT silently overwrite or normalize user content. **Retitled-finding ID freeze**: if an entry has an existing stable ID but re-running `sha1(current_title + first_source_ref)[:6]` yields a different hash, keep the existing ID frozen — do NOT re-derive it. Append a one-line HTML comment immediately after the entry: `<!-- title-edited: id frozen; incremental dedup: match by id, not by re-derived hash -->`. This prevents the next incremental deep-research call from computing a new hash for the same content and creating a duplicate entry.
+
+**Read-time source-existence check:** before citing any `sources/<type>/<file>.md` from `findings.md` in your reply, verify the file STILL exists in the workspace (the user may have deleted `sources/` mid-session, or a particular source file). If a citation target is missing, do NOT silently broken-link it to the user. Instead: tell the user "原 source 文件 `sources/...` 已不在 workspace（你可能删了或移走了），这条 finding 暂时不可验证。要 (a) 重新跑 intake 重新抓 source，还是 (b) 跳过这条 finding 继续？" Wait for choice.
 
 ### 2. Choose ONE action
 
 Priority order:
+
+a0. **Meta-question handler** — if the user is asking ABOUT the skill itself rather than about the topic (e.g., "你是怎么决定挑哪个 finding 的", "为什么要先 intake", "我能跳过 Phase 0 吗", "怎么导出 workspace"), give a 1-paragraph transparent answer about the relevant skill behavior, citing the relevant reference file. Do NOT proceed with normal content actions this turn. After answering, ask "继续讨论 [current finding or learning_path node]？还是想再问其它 skill 用法？" so the user can decide to resume. (Same as light-mode action a0, adapted for heavy-mode context.)
 
 a. **Discuss a finding** — pick an unchecked `[ ]` item from `findings.md` related to the current `learning_path` node. Ask the user to explain why it's counter-intuitive / why it's a bug / what would happen if they ran the experiment. **Do not reveal the finding's explanation immediately** — probe first.
 
