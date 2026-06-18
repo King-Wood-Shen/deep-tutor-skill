@@ -40,11 +40,11 @@ c. **Quiz from findings** — questions derived from 💡/🐛 items make better
 
 d. **User wants to actually run an experiment** — switch into execute-tier flow (see [execute-tier.md](../../../skills/deep-research/references/execute-tier.md)).
 
-e. **Information gap** — call `deep-research` with `mode: incremental` and a narrow `question`. **Always pass `sources: <manifest.yaml.sources[]>`** so the incremental call can ground on the same code/paper the original intake used; otherwise the call may degrade to paper-only or re-fetch sources. Do NOT trigger a fresh intake — incremental builds on what `findings.md` already contains.
+e. **Information gap** — call `deep-research` with `mode: incremental` and a narrow `question`. **Always pass `sources: <manifest.yaml.sources[]>`** so the incremental call can ground on the same code/paper the original intake used; otherwise the call may degrade to paper-only or re-fetch sources. Do NOT trigger a fresh intake — incremental builds on what `findings.md` already contains. **If `manifest.sources[]` is empty** (rare — usually means the workspace was created with topic-only entry and intake hasn't fetched anything yet), do NOT call incremental at all; instead answer from `findings.md` and `sources/` files directly. If that's insufficient, ask the user for a paper/repo URL to add to sources first, then fire intake (not incremental).
 
 ### 3. Reply
 
-1-3 paragraphs. Cite findings with their item index (e.g., "findings.md `💡#2`"). Never paste the full finding text — link to it.
+1-3 paragraphs. Cite findings with their **stable ID** (e.g., "findings.md `#I-a3f2c1`"). NEVER use positional indices like `💡#2` — incremental writes reorder findings and invalidate positional refs (see [workspace-spec.md](workspace-spec.md) for the stable-id format). Never paste the full finding text — link to it.
 
 ### 4. Update workspace
 

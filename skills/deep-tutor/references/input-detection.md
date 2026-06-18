@@ -13,7 +13,7 @@ Scan the user's message for these patterns, in order:
 | Local directory path that exists and contains `.py`, `.js`, `.ts`, `.rs`, `.go`, `.cpp`, etc. | `local_code` |
 | None of the above | `topic` |
 
-If the message contains both a paper and a repo URL: prefer `repo` as the primary `entry_mode` (per spec §5.2 rule 1, code > paper). The non-preferred URL is NOT discarded — both URLs go into `manifest.yaml.sources[]` so `deep-research` intake can use them. Same rule for any other multi-URL message: the highest-priority URL drives `entry_mode`, but ALL URLs are persisted as `sources[]` entries.
+If the message contains both a paper and a repo URL: prefer `repo` as the primary `entry_mode` (per spec §5.2 rule 1, code > paper). The non-preferred URL is NOT discarded — both URLs go into `manifest.yaml.sources[]` so `deep-research` intake can use them. Same rule for any other multi-URL message: the highest-priority URL drives `entry_mode`, but ALL URLs are persisted as `sources[]` entries — **after deduplication**: if the user pasted the same URL twice (or one is a redirect/short-form of another, like `arxiv.org/abs/X` and `arxiv.org/pdf/X.pdf`), keep only one canonical entry.
 
 ## Step 2 — scan intent words
 

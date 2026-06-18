@@ -38,7 +38,7 @@ sources:
   - type: "repo"
     url: "https://github.com/tensorflow/tensor2tensor"
     fetched_at: null
-related: []                           # paths to related topic workspaces
+related: []                           # paths to related topic workspaces (read-only display; no automatic traversal — cycles are tolerated but never followed)
 ```
 
 ## `findings.md` structure
