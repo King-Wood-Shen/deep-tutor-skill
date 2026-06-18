@@ -280,6 +280,20 @@ Throughout this spec, many actions are written as if their preconditions hold (f
 
 Forbidden: silently proceed with defaults, fabricate missing data, retry without acknowledging, downgrade to a different mode without telling the user. This principle binds wherever the spec uses words like "already exists", "if present", "expects", or "assumes" — every such clause has a violation path that this principle owns.
 
+### P8 — Cross-artifact consistency on state change
+
+When the skill changes any user-visible state, ALL artifacts that reference that state must be updated in the SAME turn. Concretely: when `learning_path.md` flips a node `[x] → [~]`, every `quizzes.md` item whose `Source:` references that node gets a history entry noting the change. When a finding is renamed, every `quizzes.md` source ref, every `learning_log.md` mention, and every `research_report.md` citation are updated together. When manifest's `intake_strategy` flips, the structured summary line reflects the new value. **No artifact lags behind by a turn.** The skill is responsible for propagation; the user should never need to manually reconcile.
+
+### P9 — Session continuity is design-time, not run-time
+
+Any state that can survive a session boundary (workspace files, manifest, `_intake/` scratch, locks, archives) MUST be designed at write time to satisfy ALL four properties:
+1. **Identifiable** — the file/field clearly says what produced it and when (timestamp, writer-name, schema version).
+2. **Recoverable** — a fresh session can determine "is this fresh? stale? mid-write? archived?" without ambiguity.
+3. **Self-archiving** — if superseded, it goes to `_prior/` or `_archive/` rather than being overwritten.
+4. **Backward-readable** — pre-v0.x artifacts remain parseable (or gracefully error-recoverable per P7) by the current spec.
+
+If any rule writes a persistent artifact without satisfying all 4, the rule is incomplete. Apply this at design time when adding any new artifact, not when a benchmark catches the gap.
+
 ### Type/null handling for all manifest fields
 
 Any field documented in `workspace-spec.md` may, in user-edited or pre-v0.x-migrated manifests, be: absent (key not in YAML), `null`, an empty string `""`, the wrong type (number where string expected), or a list/dict where a scalar was expected. Treat all four as "unset" — fall back to the default the schema documents (`execute_tier: false`, `intake_strategy: "single"`, `sources: []`, `related: []`). For required fields (`topic`, `entry_mode`, `current_mode`, `intent`), absent/null/empty triggers P7 — stop and ask.
