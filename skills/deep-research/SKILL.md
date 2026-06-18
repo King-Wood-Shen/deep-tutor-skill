@@ -108,6 +108,7 @@ e. **Stable IDs**: re-verify all IDs follow `<prefix>-<6-hex>`; if specialists u
 f. **Write final artifacts**:
    - `findings.md` — three sections (💡, 🐛, 🧪), with `## ⚠️ Unverified` at the bottom if needed. **A section with zero entries MUST still be emitted as a header followed by `*(none found in this intake)*`** — never silently omit the section, because the deep-tutor heavy-mode loop relies on the section headers being present to scan unchecked items.
    - `research_report.md` — narrative report. Include `## Cross-implementation comparison` subsection if ≥ 2 code sources were scanned (per `xhs-methodology.md` Step 4).
+   - **Source-conflict surfacing**: when 2+ sources cite the same idea / claim with materially different content (e.g., two papers attribute attention-scale to different reasons; two repos implement the same formula with different constants), do NOT silently pick one. Add a `## ⚠️ Source conflict` subsection to `research_report.md` listing each conflicting pair with both citations and a 1-line synthesis question for the user. Keep findings that depend on either side, but mark each with `(contested — see report § Source conflict)`.
 
 ### Step 4 — Cleanup and return
 

@@ -43,6 +43,13 @@ license: <if known>
 
 Followed by the actual excerpt (key passages or code blocks). Do not store full PDFs or full repos — only the cited passages.
 
+**Completeness marker (mandatory):** every `sources/<type>/<short>.md` MUST include a header line `completeness: full | partial | scanned-image-only`:
+- `full` — fetch returned the entire content; safe to cite any portion.
+- `partial` — fetch was truncated (timeout, size limit, rate limit, redirect chain too long). MUST also include `truncated_at: <line-or-section>`. Findings citing content AFTER the truncation point MUST be tagged `[no-line-ref]` and demoted to Unverified per the existing citation-rules — never fabricate content past the cut.
+- `scanned-image-only` — PDF or page has no extractable text. Findings sourced from it always carry `[no-line-ref]`.
+
+**Staleness check:** the `fetched_at` field is mandatory and ISO 8601 UTC. On intake (mode==intake), if any existing source has `fetched_at` > **30 days ago** from `manifest.updated_at`, re-fetch it before scanning. If re-fetch fails (404, timeout, network unavailable), keep the cached version but add a `staleness: <N>-days-old (re-fetch failed)` line to the source header and surface it in the caller's structured summary as `Stale sources: <N> over 30d`.
+
 ## Self-check before writing any finding
 
 Before appending any 💡 / 🐛 entry to `findings.md`, run this checklist:
