@@ -52,12 +52,15 @@ Slugs MUST be deterministic so that paraphrased restarts of the same topic resum
    - `local_code`: take the leaf directory name (lowercased).
    - `topic`: extract **content nouns** from the message — drop these stopwords if present: `帮我`, `请`, `继续`, `学`, `搞懂`, `教我`, `理解`, `想`, `一下`, `了解`, `研究`, `复现`, `分析`, `看看`, `the`, `a`, `an`, `of`, `for`, `learn`, `understand`, `explore`, `study`, `please`, `help`, `me`, `tutor`, `about`, `into`, `is`, `how`, `what`, `why`, `works`, `working`. Also drop punctuation and Chinese particles (`的`, `了`, `是`, `怎么`, `如何`).
 
-2. **Normalize**:
-   - **First**, insert a space before any non-alphanumeric character that sits between two alphanumeric characters (e.g., `BERT🔥GPT` → `BERT 🔥 GPT`; `RoPE/ALiBi` → `RoPE / ALiBi`). This prevents emoji, punctuation, or symbol "separators" from collapsing distinct tokens into one slug.
-   - Lowercase.
-   - Replace whitespace and underscores with hyphens.
-   - Strip any character not in `[a-z0-9-]`.
-   - Collapse repeated hyphens; trim leading/trailing hyphens.
+2. **Normalize** (apply these substeps in order — they are NOT commutative):
+   - **2a. Symbol-separator insertion**: insert a space before any non-alphanumeric character (incl. emoji and unicode punctuation) that sits between two alphanumeric characters (e.g., `BERT🔥GPT` → `BERT 🔥 GPT`; `RoPE/ALiBi` → `RoPE / ALiBi`).
+   - **2b. CamelCase / case-transition split**: insert a space between any lowercase-followed-by-uppercase pair AND between any letter-followed-by-digit (or digit-followed-by-letter) pair (e.g., `selfAttention` → `self Attention`; `RoPE` → `Ro PE` — undesired here, so handle acronyms by NOT splitting consecutive uppercase: only split at `lowercase→uppercase` boundary). Also split `noseparator` style words by detecting common token boundaries via a static dictionary of known terms: `self|attention|cross|multi|head|layer|norm|encoder|decoder|transformer|attn|bert|gpt|lora`. If none match, leave as-is — better one word than wrong split.
+   - **2c. CJK / unicode content preservation**: do NOT strip CJK characters yet. Lowercase ASCII letters only (Chinese/Japanese have no case).
+   - **2d. Whitespace and underscores → hyphens.**
+   - **2e. CJK transliteration**: if the remaining string contains CJK or other non-ASCII alphanumeric content, replace each run of non-ASCII characters with a deterministic 4-char hex tag derived from sha1 of the run (e.g., `自注意力` → `cjk-a3f2`). Combine with adjacent ASCII parts via hyphen. This preserves uniqueness across paraphrases of the same Chinese topic while keeping the slug ASCII-safe for `init_workspace.sh`'s regex.
+   - **2f. Strip any character not in `[a-z0-9-]`.** (Now safe — CJK already converted.)
+   - **2g. Collapse repeated hyphens; trim leading/trailing hyphens.**
+   - **2h. Empty-slug fallback**: if the result is empty or shorter than 2 chars after normalization, derive `topic-<6-char-sha1-of-original-message>` as the slug. This guarantees init_workspace.sh always gets a valid kebab slug.
 
 3. **Truncate** to the first 4 content words (joined with `-`). Hard cap: 6 words. Result must match `^[a-z0-9]([a-z0-9-]*[a-z0-9])?$` (the same regex `init_workspace.sh` enforces).
 
