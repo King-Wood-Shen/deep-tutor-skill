@@ -26,7 +26,7 @@ This gate runs BEFORE the turn-type dispatch below. If the request is in-scope, 
 
 Before anything else, decide whether this is turn 1 or turn 2+:
 
-- **Turn 1** (no prior workspace touched in this session): run Step 1 (detect input) → Step 2 (route by mode) → Step 3 (per-turn loop).
+- **Turn 1** (no prior workspace touched in this session): **First scan for override phrases** in the same message (see User overrides below). If any override is present, capture it and apply it AFTER Step 1 finishes (e.g., `"开启 execute_tier"` arrives with the first message → set `execute_tier=true` in the freshly-written manifest before Step 2 runs). Then: Step 1 (detect input) → Step 2 (route by mode) → Step 3 (per-turn loop).
 - **Turn 2+** (you already have a workspace loaded): **SKIP Step 1 entirely.** Do NOT re-classify entry/intent from the new message even if it contains URLs, code paths, or intent keywords like "novel idea" / "研究" / "改进". Instead:
   1. Check the user-overrides section below. If any override phrase matches, apply it and stop normal flow for this turn.
   2. Otherwise read `manifest.yaml` for the persisted `entry_mode` / `intent` / `current_mode` and go straight to Step 3 (per-turn loop) under that mode.
