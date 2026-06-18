@@ -32,12 +32,19 @@ Use when there's a paper-vs-code gap (link to `findings.md` 💡 item if availab
 
 Use to test depth of understanding after multiple concepts mastered.
 
+## Acknowledge before probing (partial-answer rule)
+
+When the user's answer is partially correct, FIRST acknowledge the correct part in one short sentence, THEN probe the gap. Example: user says "Q/K/V 是输入的三份复制然后线性变换" — the "线性变换" part is right, the "三份复制" implies identical projections (wrong). Right reply: "对的，三个都做线性变换 ✓。但有一个细节我想确认：这三个变换用的是同一组权重，还是不同的？" Without the affirming opener, the probe feels dismissive.
+
+This rule applies to all Socratic patterns P1-P5 when the user provides ANY non-empty response that contains at least one factually correct component.
+
 ## Anti-patterns (do NOT do)
 
 - ❌ Asking multiple questions in one turn — pick one and wait.
 - ❌ Asking yes/no questions — always require the user to reason.
 - ❌ Hinting the answer in the question itself ("Isn't it true that...?").
 - ❌ Following a wrong user answer with the right answer — probe again with a different angle first. **Exception**: see "User-autonomy override" and "Escalation ceiling" below.
+- ❌ Probing the gap without first acknowledging the correct part (see "Acknowledge before probing" above).
 
 ## Escalation ceiling (anti-loop)
 
