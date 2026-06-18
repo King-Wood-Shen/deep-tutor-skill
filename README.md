@@ -18,6 +18,8 @@ cp -r skills/deep-research ~/.claude/skills/
 
 Restart Claude Code (or reload the skills list).
 
+**Windows users:** `init_workspace.sh` requires `bash`. Install [Git Bash](https://git-scm.com/downloads/win) or WSL — both put `bash` on PATH. Without it the skill will detect the error and tell you to set up bash before proceeding. The cwd you invoke the skill from must also be writable (the skill creates `.deeptutor/<topic>/` there).
+
 ## Use
 
 In any project directory, mention the skill or describe what you want:

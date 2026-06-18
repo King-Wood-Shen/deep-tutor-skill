@@ -32,6 +32,13 @@ Otherwise, **create the workspace** by running:
 bash <skill_dir>/scripts/init_workspace.sh "<slug>" "<title>" "<entry_mode>" "<intent>"
 ```
 
+**If the bash command fails** (exit code ≠ 0), classify the failure and tell the user:
+- **`bash: command not found`** (Windows without Git Bash / WSL): reply "需要 bash 才能创建 workspace。在 Windows 上请安装 Git Bash 或 WSL，或者把 cwd 切到一个已经有 bash 的环境再调用 skill。"
+- **`Permission denied`** / **`Read-only file system`**: reply "当前目录 `<cwd>` 不可写（只读 / 权限不足），无法创建 `.deeptutor/<slug>/`。请切换到一个可写目录后再开始。"
+- **Other non-zero exit**: surface the actual stderr line verbatim to the user and ask them to try a different cwd.
+
+Do NOT silently proceed pretending the workspace exists. Do NOT retry — workspace creation failures are upstream environment problems the skill cannot fix on its own.
+
 **Immediately after creation**, overwrite the placeholder root concept in `learning_path.md` (which the script writes as `- [ ] (root concept — fill in)`) with at least one real, topic-specific root node derived from the user's first message. Example: if topic is `transformer-self-attention`, replace the placeholder with `- [ ] Self-attention: Q/K/V projection and dot-product score`. This is required for the light-mode Calibrate action to anchor on a real concept.
 
 **Resumed-session interrupted-creation recovery:** If this is a resumed session (workspace already existed) AND `learning_path.md` still contains ONLY the line `- [ ] (root concept — fill in)` with no real node, treat the prior creation as interrupted: perform the root-node overwrite now (using the current message context to derive the node) before proceeding to Step 2. Without this, the Calibrate action has no anchor and the session permanently stalls on the placeholder.
