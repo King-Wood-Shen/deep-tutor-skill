@@ -20,6 +20,8 @@ The caller passes (in natural language or structured):
 
 If the caller did not specify `mode`, treat as `intake` if `findings.md` does not exist yet, else `incremental`.
 
+**Direct invocation (user calls deep-research without going through deep-tutor):** the caller may not have a workspace yet. If `workspace` arg points to a path that doesn't exist, you have two options: (a) call `init_workspace.sh` yourself with sensible defaults derived from `topic` + `sources` (entry_mode = repo if sources contain a github URL, else paper if .pdf, else topic; intent = research by default since direct deep-research caller is research-focused); (b) refuse with the structured error "workspace `<path>` does not exist; create it first with deep-tutor or by running `init_workspace.sh <slug> <title> <entry_mode> <intent>` from cwd." Choose (a) only if `topic` is a valid kebab-case slug; otherwise (b).
+
 **Empty `sources` on intake** (e.g., `entry_mode: topic` with no URLs in the user's first message): when `mode == intake` AND `sources == []`, do NOT decide the fan-out path yet. First run XHS Step 1 (locate code) with the topic slug as the search seed; persist Step 1 hits to `sources/papers/`, `sources/code/`, `sources/web/` and treat THOSE as the effective sources for the fan-out decision (multi-agent if any `repo`/`local_code` found, single-agent paper-only otherwise). This prevents silently routing a topic-string input with available code into the paper-only branch.
 
 **Caller explicitly requested `incremental` but `findings.md` does not exist:** This is a contract error — incremental builds on prior intake. Do NOT silently fall through to intake (that would surprise the caller with a long-running first call). Instead, return early with the structured summary:
@@ -59,7 +61,7 @@ In that case the coordinator (this skill, before any specialist dispatch) does:
 
 ### Step 1 — Wave 1 (parallel)
 
-**Double-dispatch guard:** Before issuing Agent calls, check whether `_intake/insight.md` or `_intake/bug.md` already has content from this same intake (i.e., file mtime is newer than `manifest.created_at`'s most recent overwrite-to-multi-agent moment). If so, a prior dispatch already happened; do NOT re-dispatch (would conflict with Principle P2). Instead, read the existing scratch and proceed to Wave 2.
+**Double-dispatch guard:** Before issuing Agent calls, check whether `_intake/insight.md` or `_intake/bug.md` already has content from this same intake (i.e., file mtime is newer than `manifest.created_at`'s most recent overwrite-to-multi-agent moment). If so, a prior dispatch already happened; do NOT re-dispatch (would conflict with Principle P2). Instead, read the existing scratch and proceed to Wave 2. **Crash-resume baseline:** if the prior dispatch state is ambiguous (mtime older than any reasonable freshness window — say > 5 minutes from now without a `.lock` file present), assume the prior run crashed mid-Wave-1: apply P7 path 2, archive the existing `_intake/` contents to `_intake/_prior/<ts>-resumed/`, and proceed with a clean dispatch.
 
 In a SINGLE main-agent response, issue TWO Agent tool calls so they run in parallel:
 
@@ -259,6 +261,20 @@ When something cannot be done (missing tool, missing source, contract violation,
 ### P6 — Locality of effect
 
 Skill effects are bounded to `<cwd>/.deeptutor/<slug>/`, period. Never write outside (not `~/.config`, not `/tmp`, not absolute paths, not anywhere else). The only exception is `setup_notes.md` proposing user-approval-gated install commands, and those still have to pass the blocklist scan in execute-tier Step 3.
+
+### P7 — Invariant violation = STOP, never paper-over
+
+Throughout this spec, many actions are written as if their preconditions hold (file exists, field has expected type, prior step completed). When you discover a precondition is FALSE — **never assume the violation never happened**. You MUST take one of three actions, and you MUST tell the user what you did:
+
+1. **Stop and ask**: present the violation, offer 2-3 concrete next-actions, wait. (Default for user-recoverable states.)
+2. **Archive and restart that step**: move the corrupt artifact to `_intake/_prior/<ts>-<name>` or `<workspace>/_archive/<ts>-<name>`, then redo the step from scratch. (Default when state is auto-recreatable.)
+3. **Treat as "this run did nothing"**: tell the user no work was done and why. (Default when neither (1) nor (2) is safe.)
+
+Forbidden: silently proceed with defaults, fabricate missing data, retry without acknowledging, downgrade to a different mode without telling the user. This principle binds wherever the spec uses words like "already exists", "if present", "expects", or "assumes" — every such clause has a violation path that this principle owns.
+
+### Type/null handling for all manifest fields
+
+Any field documented in `workspace-spec.md` may, in user-edited or pre-v0.x-migrated manifests, be: absent (key not in YAML), `null`, an empty string `""`, the wrong type (number where string expected), or a list/dict where a scalar was expected. Treat all four as "unset" — fall back to the default the schema documents (`execute_tier: false`, `intake_strategy: "single"`, `sources: []`, `related: []`). For required fields (`topic`, `entry_mode`, `current_mode`, `intent`), absent/null/empty triggers P7 — stop and ask.
 
 ## Do NOT
 
