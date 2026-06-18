@@ -52,7 +52,7 @@ Mark discussed `findings.md` items as `[x]`. Update `learning_log.md`, `learning
 
 ## Rules
 
-- **Intake runs exactly once per workspace.** If `findings.md` exists, you are NOT in Phase 0 — go straight to Phase 1. **The presence or absence of `_intake/` is irrelevant** — that directory is the multi-agent specialist scratch from intake time and is safe for the user to delete after a week (per `workspace-spec.md`). `findings.md` alone is the authoritative artifact for "intake has happened."
+- **Intake runs exactly once per workspace.** Check `findings.md` by **content, not just file presence**: if the file is missing, empty (0 bytes), or contains only whitespace / only the three section headers with no entries, treat as "intake has NOT happened" and run Phase 0. Only a `findings.md` with at least one real entry counts as "intake done" — a user who manually truncated the file gets a fresh intake, which is the safe behavior. **The presence or absence of `_intake/` is irrelevant** — that directory is the multi-agent specialist scratch from intake time and is safe for the user to delete after a week (per `workspace-spec.md`).
 - **Do not dump findings in bulk.** Surface one at a time, tied to current concept.
 - **Code citations from `sources/code/` beat paper citations from `sources/papers/`.** Prefer the former when teaching.
 - **Execute tier is opt-in.** Never auto-clone, never auto-install.

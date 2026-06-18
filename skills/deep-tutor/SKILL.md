@@ -57,6 +57,16 @@ When probing the user, use one of the patterns in [references/socratic-prompts.m
 
 ## User overrides
 
+When a single message contains MULTIPLE override phrases, apply them in this **priority order** (top wins; lower ones are ignored or queued for next turn):
+
+1. `"忘了我"` / `"重新开始"` — most destructive; if user wants to wipe, they want it now, ignore everything else in the same message.
+2. `"新建主题 X"` — context-switching; applies before any mode change.
+3. `"继续主题 Y"` / `"回到 X"` / `"切回 X"` / `"resume X"` — context-switching to existing workspace.
+4. `"切到轻量模式"` / `"切到研究模式"` — mode-only change inside current workspace.
+5. `"开启 execute_tier"` / `"enable execute_tier"` — flag-only change.
+
+If a message contains, say, both "新建主题 X" + "切到研究模式", apply rule 2 (create new workspace), and inside the newly-created workspace honor the mode override on the SAME turn (Branch A/B logic still applies). Always tell the user what you applied and what you queued, e.g., "已新建主题 X 并切到研究模式 (Branch A)；execute_tier 标志保持默认 false，需要时再说'开启 execute_tier'。"
+
 Honor these phrases at any turn:
 - "切到轻量模式" / "switch to light mode" → set `current_mode = light`.
 - "切到研究模式" / "switch to heavy/research mode" → set `current_mode = heavy` in `manifest.yaml`. Two cases:

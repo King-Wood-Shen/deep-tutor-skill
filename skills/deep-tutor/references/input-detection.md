@@ -53,6 +53,7 @@ Slugs MUST be deterministic so that paraphrased restarts of the same topic resum
    - `topic`: extract **content nouns** from the message — drop these stopwords if present: `帮我`, `请`, `继续`, `学`, `搞懂`, `教我`, `理解`, `想`, `一下`, `了解`, `研究`, `复现`, `分析`, `看看`, `the`, `a`, `an`, `of`, `for`, `learn`, `understand`, `explore`, `study`, `please`, `help`, `me`, `tutor`, `about`, `into`, `is`, `how`, `what`, `why`, `works`, `working`. Also drop punctuation and Chinese particles (`的`, `了`, `是`, `怎么`, `如何`).
 
 2. **Normalize**:
+   - **First**, insert a space before any non-alphanumeric character that sits between two alphanumeric characters (e.g., `BERT🔥GPT` → `BERT 🔥 GPT`; `RoPE/ALiBi` → `RoPE / ALiBi`). This prevents emoji, punctuation, or symbol "separators" from collapsing distinct tokens into one slug.
    - Lowercase.
    - Replace whitespace and underscores with hyphens.
    - Strip any character not in `[a-z0-9-]`.
@@ -65,6 +66,8 @@ Slugs MUST be deterministic so that paraphrased restarts of the same topic resum
    - "继续学 transformer self-attention" → `transformer-self-attention`
    - "想研究 self attention 的 novel idea" → `self-attention-novel-idea`
    - "https://github.com/karpathy/nanoGPT" → `nanogpt`
+
+**Orphan workspace scan (do this BEFORE creating a new workspace):** If `<cwd>/.deeptutor/<slug>/manifest.yaml` does NOT exist, also scan all sibling directories `<cwd>/.deeptutor/*/manifest.yaml`. For each, check whether the manifest's `topic` field equals the slug you just derived. If a match is found in a directory whose folder name differs from the slug (i.e., the user manually renamed the directory), do NOT silently create a new workspace — ask: "我发现 `.deeptutor/<actual-folder>/` 里的 manifest 写着 `topic: <slug>`，看起来你重命名过这个目录。要 (a) 把目录名改回 `<slug>` 继续旧会话，(b) 把 manifest 的 topic 字段改成 `<actual-folder>` 接受新名字，还是 (c) 忽略，按新主题创建？" Wait for user's answer.
 
 If `<cwd>/.deeptutor/<slug>/manifest.yaml` already exists, this is a candidate **resumed session**. Before resuming, validate:
 
