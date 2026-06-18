@@ -17,6 +17,10 @@ Each user message in light mode follows this loop:
 
 In priority order — pick the first that fits:
 
+a0. **Meta-question handler** — if the user is asking ABOUT the skill itself rather than about the topic (e.g., "你刚才的回答是怎么生成的", "为什么先 Socratic 再 Quiz", "我能跳过 X 吗", "怎么导出 workspace"), give a 1-paragraph transparent answer about the relevant skill behavior, citing the relevant reference file. Do NOT proceed with normal content actions this turn. After answering, ask "继续学 [current node]？还是想再问其它 skill 用法？" so the user can decide to resume.
+
+a1. **Contradiction detection** — if the user's current message materially contradicts a prior `[x]` (completed) node in `learning_path.md` or a `correct ✓` answer in `quizzes.md` (e.g., they said scaling factor is `1/sqrt(d_k)` last week and now claim it's `1/d_k`), revert the relevant `[x]` to `[~]` (in-progress), append a `learning_log.md` note "regression on `<node>` detected", and probe gently: "上次我们提过 [prior correct claim]，这次你说的是 [current claim]，是改主意了还是想重新讨论一下？" Do NOT just answer the latest — engage with the change.
+
 a. **Calibrate** — if `learning_path.md` is still empty or single-node, the user just started. First action: Socratic probe to map out what they already know. Do NOT lecture.
 
 b. **Probe a gap** — if the last `learning_log` entry has a `Gaps:` line, follow up on it with a question, not an answer.
