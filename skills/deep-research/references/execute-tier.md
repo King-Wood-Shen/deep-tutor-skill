@@ -49,7 +49,22 @@ Return to caller with: "Setup notes written; waiting for user approval before in
 
 ### Step 3 — install (after explicit user approval)
 
-When the caller signals user approval, run the install commands. **Hard timeout: 300 seconds**. If it times out, write to `findings.md` 🐛 section:
+When the caller signals user approval, **BEFORE running any command**, scan each line in the "Proposed setup commands" block of `setup_notes.md` against this blocklist. **Pre-process** each line first: textually resolve any shell-variable references (`$VAR`, `${VAR}`) by looking in earlier lines of `setup_notes.md` for `VAR=...` assignments, and substitute the value. If you cannot resolve a variable (it comes from the user's actual shell env), treat it as `<UNRESOLVED>` AND reject the entire setup with "setup_notes.md uses unresolvable shell variable `$VAR`; please rewrite without indirection." Indirection is itself a bypass attempt. After substitution, apply the blocklist patterns. If ANY line (post-substitution) matches, ABORT the install, write a 🐛 finding "Refused: setup_notes.md contained disallowed pattern `<pattern>` on line `<line>` (post-substitution: `<expanded>`)", and tell the user "setup_notes.md 里有危险命令，已拒绝执行：`<offending-line>`。请审阅并手动修正或重新生成 setup_notes.md。"
+
+**Blocklist patterns (any match → abort):**
+- `rm -rf` followed by `/`, `$HOME`, `~`, `$`, or `*` outside the cloned repo directory
+- `sudo ` (any sudo invocation)
+- `curl ... | sh` / `curl ... | bash` / `wget ... | sh` (pipe-to-shell)
+- `eval ` / `source <(...)` with command substitution
+- write/append redirection to `/etc/`, `~/.bashrc`, `~/.zshrc`, `~/.ssh/`, `~/.aws/`, `~/.gitconfig`
+- `chmod 777` or `chmod -R` outside the repo dir
+- `kill -9` to PIDs you didn't spawn
+- `dd if=`, `mkfs`, `fdisk`
+- network beacons: `nc ` followed by a domain, `curl` to non-package-index URLs
+
+"approve setup" is approval to run the commands AS WRITTEN — it is NOT carte blanche to override safety checks. The blocklist is mandatory even on approval.
+
+When (and only when) all commands pass the blocklist, run them. **Hard timeout: 300 seconds**. If it times out, write to `findings.md` 🐛 section:
 
 ```
 🐛 Setup failed: pip install exceeded 300s. See setup_notes.md and sources/code/_runs/install_<ts>.log.

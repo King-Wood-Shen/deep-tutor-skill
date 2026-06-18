@@ -53,6 +53,8 @@ Before appending any 💡 / 🐛 entry to `findings.md`, run this checklist:
 
 Findings that fail check 1 or 2 must not be written.
 
+**Source-file existence check:** Before accepting any citation that points to `sources/papers/`, `sources/code/`, or `sources/web/`, verify the referenced file actually exists in the workspace. A citation like `[foo](sources/code/imaginary.md)` where `imaginary.md` does not exist is automatically demoted to `## ⚠️ Unverified` with reason "source file not in workspace." This catches both fabricated citations and citations to user-supplied "foreign" source files that were never written by deep-research itself.
+
 **Demotion accounting:** When any findings are demoted to `## ⚠️ Unverified`:
 - The caller-facing summary (defined in `deep-research/SKILL.md`) must count only the **verified** findings in the `Findings: <N>💡 / <N>🐛 / <N>🧪` line. Report unverified counts separately as `Unverified: <N>` to keep the headline trustworthy.
 - `research_report.md` must add a line in its "Key findings" section noting `(Note: <N> findings were demoted to Unverified due to missing code line refs)`.
