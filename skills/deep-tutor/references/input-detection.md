@@ -67,6 +67,8 @@ Slugs MUST be deterministic so that paraphrased restarts of the same topic resum
    - "想研究 self attention 的 novel idea" → `self-attention-novel-idea`
    - "https://github.com/karpathy/nanoGPT" → `nanogpt`
 
+**Partial-workspace recovery (do this BEFORE the orphan scan):** Check whether `<cwd>/.deeptutor/<slug>/` exists as a directory but lacks `manifest.yaml`. This indicates partial corruption (user deleted manifest, crashed mid-creation, manual archive gone wrong). Other artifacts (`findings.md`, `learning_log.md`, `_intake/`) may still be present. Do NOT silently recreate manifest and overwrite — ask the user: "我发现 `.deeptutor/<slug>/` 存在但 manifest.yaml 不见了。要 (a) 把当前目录归档到 `.deeptutor/_archive/<slug>-corrupt-<ts>/` 重新开始，(b) 我帮你从其它文件（如 findings.md）推断 entry_mode 重建 manifest，还是 (c) 取消，让你自己手动修？" Wait for choice; do NOT default.
+
 **Orphan workspace scan (do this BEFORE creating a new workspace):** If `<cwd>/.deeptutor/<slug>/manifest.yaml` does NOT exist, also scan all sibling directories `<cwd>/.deeptutor/*/manifest.yaml`. For each, check whether the manifest's `topic` field equals the slug you just derived. If a match is found in a directory whose folder name differs from the slug (i.e., the user manually renamed the directory), do NOT silently create a new workspace — ask: "我发现 `.deeptutor/<actual-folder>/` 里的 manifest 写着 `topic: <slug>`，看起来你重命名过这个目录。要 (a) 把目录名改回 `<slug>` 继续旧会话，(b) 把 manifest 的 topic 字段改成 `<actual-folder>` 接受新名字，还是 (c) 忽略，按新主题创建？" Wait for user's answer.
 
 If `<cwd>/.deeptutor/<slug>/manifest.yaml` already exists, this is a candidate **resumed session**. Before resuming, validate:

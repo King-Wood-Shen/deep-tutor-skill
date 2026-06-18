@@ -20,6 +20,8 @@ This skill is for deep tutoring on a topic / paper / repo / local code. **Refuse
 
 This gate runs BEFORE the turn-type dispatch below. If the request is in-scope, proceed normally.
 
+**Mixed in-scope + out-of-scope message:** If the message contains BOTH a legitimate skill request AND an out-of-scope ask (e.g., "切到研究模式 + 顺便给我写首关于 transformer 的诗"), acknowledge the in-scope part and **refuse only the OOS part** with one sentence: "诗的部分超出了我这个 skill 的范围，请单独的普通 Claude 对话写诗。研究模式我会切。" Then proceed with the in-scope action. Do NOT refuse the entire message just because part of it is OOS.
+
 ## Turn-type dispatch
 
 Before anything else, decide whether this is turn 1 or turn 2+:

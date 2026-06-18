@@ -84,6 +84,7 @@ Otherwise, spawn the **Experiment Designer**:
 ### Step 3 — Aggregate + critic (coordinator, no 4th subagent)
 
 a. Read all three `_intake/*.md` files. **Validate first:**
+   - **Specialist refusal detection**: before checking scratch files, scan the specialist's return summary for refusal patterns (`"I cannot"`, `"I won't"`, `"This is outside"`, `"I'm not able"`, returns containing no `Found:` line at all, returns that are only prose with no structured fields). Treat refusals as contract violation: log to `_intake/_violations.md` with the verbatim refusal text, and proceed as if that specialist returned `Found: 0` — do NOT retry, do NOT silently re-prompt.
    - For each specialist that reported `Found > 0`, the corresponding `_intake/<short-role>.md` MUST exist and be non-empty. If missing, treat as a contract violation: log to `_intake/_violations.md` and proceed as if that specialist returned `Found: 0`.
    - For each entry inside a scratch file, check the stable-ID prefix matches the file (`I-*` in insight.md, `B-*` in bug.md, `E-*` in experiment.md). Cross-prefix entries are demoted to `## ⚠️ Unverified` regardless of other validation.
    - **Checkbox state normalization**: specialist entries MUST be in unchecked state (`- [ ]`). If a specialist wrote `- [x]`, that is a contract violation — log to `_intake/_violations.md` and reset to `- [ ]` before aggregation. Only the deep-tutor heavy-mode loop marks findings as `[x]` (after discussion with user), not specialists at intake time.

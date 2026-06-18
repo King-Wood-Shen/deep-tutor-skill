@@ -48,7 +48,10 @@ Followed by the actual excerpt (key passages or code blocks). Do not store full 
 - `partial` — fetch was truncated (timeout, size limit, rate limit, redirect chain too long). MUST also include `truncated_at: <line-or-section>`. Findings citing content AFTER the truncation point MUST be tagged `[no-line-ref]` and demoted to Unverified per the existing citation-rules — never fabricate content past the cut.
 - `scanned-image-only` — PDF or page has no extractable text. Findings sourced from it always carry `[no-line-ref]`.
 
-**Staleness check:** the `fetched_at` field is mandatory and ISO 8601 UTC. On intake (mode==intake), if any existing source has `fetched_at` > **30 days ago** from `manifest.updated_at`, re-fetch it before scanning. If re-fetch fails (404, timeout, network unavailable), keep the cached version but add a `staleness: <N>-days-old (re-fetch failed)` line to the source header and surface it in the caller's structured summary as `Stale sources: <N> over 30d`.
+**Staleness check:** the `fetched_at` field is mandatory and ISO 8601 UTC, OR the literal value `null` if the source was declared but never fetched yet. On intake (mode==intake):
+- If `fetched_at == null` → fetch it now (fresh fetch, no staleness needed).
+- If `fetched_at` is a timestamp > **30 days ago** from `manifest.updated_at` → re-fetch.
+- If re-fetch fails (404, timeout, network unavailable), keep the cached version but add a `staleness: <N>-days-old (re-fetch failed)` line to the source header and surface it in the caller's structured summary as `Stale sources: <N> over 30d`.
 
 ## Self-check before writing any finding
 
@@ -61,6 +64,8 @@ Before appending any 💡 / 🐛 entry to `findings.md`, run this checklist:
 Findings that fail check 1 or 2 must not be written.
 
 **Source-file existence check:** Before accepting any citation that points to `sources/papers/`, `sources/code/`, or `sources/web/`, verify the referenced file actually exists in the workspace. A citation like `[foo](sources/code/imaginary.md)` where `imaginary.md` does not exist is automatically demoted to `## ⚠️ Unverified` with reason "source file not in workspace." This catches both fabricated citations and citations to user-supplied "foreign" source files that were never written by deep-research itself.
+
+**Multi-citation findings:** A finding may cite multiple sources. ALL cited source files must exist and be `completeness: full` (or be the specific portion before a `partial` truncation point). If ANY cited source is missing or stale-past-truncation, the entire finding is demoted to Unverified — partial citation validity is not acceptable, because a reader following the broken link cannot reconstruct the claim.
 
 **Demotion accounting:** When any findings are demoted to `## ⚠️ Unverified`:
 - The caller-facing summary (defined in `deep-research/SKILL.md`) must count only the **verified** findings in the `Findings: <N>💡 / <N>🐛 / <N>🧪` line. Report unverified counts separately as `Unverified: <N>` to keep the headline trustworthy.
